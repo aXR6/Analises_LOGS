@@ -2,8 +2,7 @@ import time
 from pathlib import Path
 from log_analyzer.log_db import LogDB
 from log_analyzer.log_parser import parse_log_line
-
-LOG_FILE = Path('rsyslog.log')
+from log_analyzer.config import LOG_FILE
 
 
 def follow(file_path: Path):

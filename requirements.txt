@@ -3,3 +3,4 @@ rich
 transformers
 torch
 logai
+python-dotenv
