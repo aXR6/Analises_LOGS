@@ -3,7 +3,9 @@
 Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco de dados
 PostgreSQL e fornece dois paineis de monitoramento. A classificacao de severidade
 dos logs utiliza o modelo **byviz/bylastic_classification_logs** disponivel no
-Hugging Face. Alem disso, uma pontuacao de anomalia eh gerada com o modelo
+Hugging Face. Esse modelo organiza os eventos em **ERROR**, **WARNING** e **INFO**,
+conforme descrito na [documentacao do projeto](https://huggingface.co/byviz/bylastic_classification_logs).
+Adicionalmente, e calculada uma pontuacao de anomalia com o modelo
 **teoogherghi/Log-Analysis-Model-DistilBert**.
 
 Painéis disponíveis:
@@ -31,6 +33,14 @@ pip install -r requirements.txt
 Copie o arquivo `.env.example` para `.env` e preencha as credenciais do banco.
 Todas as informações sensíveis devem ficar apenas nesse arquivo, já que o
 codigo fonte não define mais valores padrão.
+
+## Personalizando modelos
+
+Os nomes dos modelos carregados podem ser alterados livremente por variáveis de
+ambiente no arquivo `.env`. Os parâmetros `SEVERITY_MODEL` e `ANOMALY_MODEL`
+definem, respectivamente, o classificador de severidade e o detector de
+anomalias. Também é possível ajustar o `ANOMALY_THRESHOLD` para controlar em
+que pontuação uma linha é marcada como suspeita.
 
 ## Uso
 
@@ -81,3 +91,5 @@ A aplicacao web ficará disponivel em `http://localhost:5000`.
 
 Linhas que contenham termos como `denied`, `attack` ou `malware` sao
 classificadas como **MALICIOUS** e geram uma mensagem de alerta no terminal.
+Adicionalmente, entradas cujo `anomaly_score` ultrapassa o valor definido em
+`ANOMALY_THRESHOLD` tambem sao tratadas como suspeitas.

@@ -20,3 +20,10 @@ SEVERITY_MODEL = os.getenv(
 ANOMALY_MODEL = os.getenv(
     "ANOMALY_MODEL", "teoogherghi/Log-Analysis-Model-DistilBert"
 )
+
+# Minimum score to treat a log as anomalous. The default value is
+# conservative because the DistilBERT model was trained to separate
+# normal lines from anomalies and may produce high scores for benign
+# messages. Adjust this environment variable to be more or less
+# sensitive.
+ANOMALY_THRESHOLD = float(os.getenv("ANOMALY_THRESHOLD", "0.8"))
