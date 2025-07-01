@@ -4,12 +4,15 @@
 import subprocess
 import sys
 import signal
+import os
 
 processes = {
     "coletor": None,
     "painel_tui": None,
     "painel_web": None,
 }
+
+device_type = os.environ.get("DEVICE_TYPE", "cpu")
 
 def handle_sigint(signum, frame):
     """Ignora CTRL+C e orienta o usuario a usar o menu."""
@@ -49,6 +52,14 @@ def finalizar(nome: str) -> None:
         print(f"{nome} nao esta em execucao.")
 
 
+def alternar_dispositivo() -> None:
+    """Alterna entre CPU e GPU para os modulos futuros."""
+    global device_type
+    device_type = "cuda" if device_type == "cpu" else "cpu"
+    os.environ["DEVICE_TYPE"] = device_type
+    print(f"Dispositivo definido para: {device_type}")
+
+
 def menu() -> None:
     """Exibe o menu principal e processa as escolhas do usuario."""
     opcoes = {
@@ -58,6 +69,7 @@ def menu() -> None:
         "4": (finalizar, "painel_tui"),
         "5": (iniciar_web,),
         "6": (finalizar, "painel_web"),
+        "7": (alternar_dispositivo,),
     }
 
     def status(nome: str) -> str:
@@ -72,9 +84,10 @@ def menu() -> None:
         print("4. Finalizar Painel TUI")
         print(f"5. Iniciar Painel Web {status('painel_web')}")
         print("6. Finalizar Painel Web")
-        print("7. Sair")
+        print(f"7. Alternar CPU/GPU (atual: {device_type})")
+        print("8. Sair")
         escolha = input("Selecione uma opcao: ").strip()
-        if escolha == "7":
+        if escolha == "8":
             for nome in list(processes.keys()):
                 finalizar(nome)
             print("Encerrando menu...")

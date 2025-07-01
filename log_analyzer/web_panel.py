@@ -7,11 +7,17 @@ TEMPLATE = """
 <!doctype html>
 <html>
 <head>
-    <title>Monitor de Logs</title>
+    <title>Log Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class=\"container my-4\">
-<h1 class=\"mb-4\">Eventos Recentes</h1>
+<body>
+<nav class=\"navbar navbar-dark bg-dark mb-4\">
+  <div class=\"container-fluid\">
+    <span class=\"navbar-brand mb-0 h1\">Log Dashboard</span>
+  </div>
+</nav>
+<div class=\"container my-4\">
+<h2 class=\"mb-4\">Eventos Recentes</h2>
 <div class=\"d-flex justify-content-between mb-3\">
   <form id=\"filter-form\" class=\"d-flex gap-2\" method=\"get\">
     <select name=\"severity\" class=\"form-select form-select-sm\">
@@ -40,6 +46,19 @@ TEMPLATE = """
 {% endfor %}
 </tbody>
 </table>
+<!-- Modal -->
+<div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Resultado da Análise</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="analysis-content"></div>
+    </div>
+</div>
+</div>
+</div>
 <script>
 const severityColors = {{ severity_colors | tojson }};
 async function fetchLogs(page = {{ page }}) {
@@ -71,11 +90,15 @@ async function analyzeLog(id) {
   const resp = await fetch('/api/analyze/' + id);
   if (!resp.ok) { alert('erro ao analisar'); return; }
   const data = await resp.json();
-  alert(data.result);
+  const modalBody = document.getElementById('analysis-content');
+  modalBody.textContent = data.result;
+  const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
+  modal.show();
 }
 fetchLogs();
 setInterval(fetchLogs, 5000);
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 """
