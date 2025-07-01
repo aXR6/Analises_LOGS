@@ -29,7 +29,8 @@ class LogDB:
                     category TEXT,
                     severity TEXT,
                     anomaly_score REAL,
-                    malicious BOOLEAN
+                    malicious BOOLEAN,
+                    semantic_outlier BOOLEAN
             )"""
         )
         cur.close()
@@ -37,12 +38,12 @@ class LogDB:
 
     def insert_log(self, timestamp: str, host: str, message: str,
                    category: str, severity: str, anomaly_score: float,
-                   malicious: bool) -> None:
+                   malicious: bool, semantic_outlier: bool) -> None:
         cur = self.conn.cursor()
         cur.execute(
-            "INSERT INTO logs (timestamp, host, message, category, severity, anomaly_score, malicious)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (timestamp, host, message, category, severity, anomaly_score, malicious)
+            "INSERT INTO logs (timestamp, host, message, category, severity, anomaly_score, malicious, semantic_outlier)"
+            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            (timestamp, host, message, category, severity, anomaly_score, malicious, semantic_outlier)
         )
         cur.close()
         self.conn.commit()
@@ -50,7 +51,7 @@ class LogDB:
     def fetch_logs(self, limit: int = 100) -> Iterable[Tuple[Any, ...]]:
         cur = self.conn.cursor()
         cur.execute(
-            "SELECT id, timestamp, host, message, category, severity, anomaly_score, malicious"
+            "SELECT id, timestamp, host, message, category, severity, anomaly_score, malicious, semantic_outlier"
             " FROM logs ORDER BY id DESC LIMIT %s",
             (limit,)
         )

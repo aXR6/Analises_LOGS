@@ -6,5 +6,6 @@ CREATE TABLE logs (
     category TEXT,
     severity TEXT,
     anomaly_score REAL,
-    malicious BOOLEAN
+    malicious BOOLEAN,
+    semantic_outlier BOOLEAN
 );

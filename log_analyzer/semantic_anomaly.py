@@ -6,6 +6,7 @@ from typing import List, Tuple
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import DBSCAN
 import numpy as np
+from log_analyzer.config import SEMANTIC_MODEL
 
 # Regex similar ao usado no parser principal para extrair a mensagem
 SYSLOG_RE = re.compile(r'^(?P<month>\w{3})\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\S+\s+(?P<msg>.*)$')
@@ -30,10 +31,29 @@ def extract_messages(file_path: Path) -> List[str]:
 
 def detect_anomalies(messages: List[str], eps: float = 0.5, min_samples: int = 5) -> Tuple[np.ndarray, DBSCAN]:
     """Retorna labels do DBSCAN para cada mensagem."""
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    model = SentenceTransformer(SEMANTIC_MODEL)
     embeddings = model.encode(messages, convert_to_numpy=True, show_progress_bar=False)
     clusterer = DBSCAN(eps=eps, min_samples=min_samples, metric='cosine').fit(embeddings)
     return clusterer.labels_, clusterer
+
+
+class OnlineSemanticDetector:
+    """Incrementally detect semantic anomalies using DBSCAN."""
+
+    def __init__(self, eps: float = 0.5, min_samples: int = 5, model_name: str = SEMANTIC_MODEL):
+        self.eps = eps
+        self.min_samples = min_samples
+        self.model = SentenceTransformer(model_name)
+        self.messages: List[str] = []
+        self.labels: List[int] = []
+
+    def add(self, msg: str) -> bool:
+        """Add a message and return True if it is an outlier."""
+        self.messages.append(msg)
+        embeddings = self.model.encode(self.messages, convert_to_numpy=True, show_progress_bar=False)
+        clusterer = DBSCAN(eps=self.eps, min_samples=self.min_samples, metric='cosine').fit(embeddings)
+        self.labels = clusterer.labels_.tolist()
+        return self.labels[-1] == -1
 
 
 def main() -> None:

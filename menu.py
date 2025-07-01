@@ -60,13 +60,17 @@ def menu() -> None:
         "6": (finalizar, "painel_web"),
     }
 
+    def status(nome: str) -> str:
+        proc = processes.get(nome)
+        return "(ativo)" if proc and proc.poll() is None else "(parado)"
+
     while True:
         print("\nMenu Principal")
-        print("1. Iniciar Coletor")
+        print(f"1. Iniciar Coletor {status('coletor')}")
         print("2. Finalizar Coletor")
-        print("3. Iniciar Painel TUI")
+        print(f"3. Iniciar Painel TUI {status('painel_tui')}")
         print("4. Finalizar Painel TUI")
-        print("5. Iniciar Painel Web")
+        print(f"5. Iniciar Painel Web {status('painel_web')}")
         print("6. Finalizar Painel Web")
         print("7. Sair")
         escolha = input("Selecione uma opcao: ").strip()
