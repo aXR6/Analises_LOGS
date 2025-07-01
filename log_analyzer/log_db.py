@@ -148,6 +148,14 @@ class LogDB:
         cur.close()
         return rows
 
+    def count_by_severity(self) -> Iterable[Tuple[str, int]]:
+        """Return number of logs grouped by severity."""
+        cur = self.conn.cursor()
+        cur.execute("SELECT severity, COUNT(*) FROM logs GROUP BY severity")
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+
     def insert_analysis(self, log_id: int, analysis: str) -> None:
         cur = self.conn.cursor()
         cur.execute(
@@ -212,6 +220,17 @@ class LogDB:
         cur = self.conn.cursor()
         cur.execute(query, tuple(params))
         rows = cur.fetchall()
+        cur.close()
+        return rows
+
+    def fetch_recent_malicious(self, limit: int = 100) -> Iterable[str]:
+        """Return messages flagged as malicious."""
+        cur = self.conn.cursor()
+        cur.execute(
+            "SELECT message FROM logs WHERE malicious = TRUE ORDER BY id DESC LIMIT %s",
+            (limit,),
+        )
+        rows = [r[0] for r in cur.fetchall()]
         cur.close()
         return rows
 
