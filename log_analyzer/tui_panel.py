@@ -23,11 +23,20 @@ def display_loop(refresh: int = 2):
             logs_table.add_column("Host")
             logs_table.add_column("Severidade")
             logs_table.add_column("Anomalia")
+            logs_table.add_column("Semantica")
             logs_table.add_column("Mensagem")
             for row in db.fetch_logs(limit=10):
-                log_id, ts, host, msg, category, severity, anomaly_score, mal = row
-                tag = "*" if mal else ""
-                logs_table.add_row(str(log_id), str(ts), host, severity + tag, f"{anomaly_score:.2f}", msg)
+                log_id, ts, host, msg, category, severity, anomaly_score, mal, semantic = row
+                tag = "*" if mal or semantic else ""
+                logs_table.add_row(
+                    str(log_id),
+                    str(ts),
+                    host,
+                    severity + tag,
+                    f"{anomaly_score:.2f}",
+                    "sim" if semantic else "nao",
+                    msg,
+                )
             console.print(logs_table)
             sleep(refresh)
     finally:

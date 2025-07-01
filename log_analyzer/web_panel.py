@@ -19,13 +19,13 @@ TEMPLATE = """
 </div>
 <table id=\"log-table\" class=\"table table-striped\">
 <thead>
-<tr><th>ID</th><th>Timestamp</th><th>Host</th><th>Severidade</th><th>Anomalia</th><th>Mensagem</th></tr>
+<tr><th>ID</th><th>Timestamp</th><th>Host</th><th>Severidade</th><th>Anomalia</th><th>Semantica</th><th>Mensagem</th></tr>
 </thead>
 <tbody>
 {% for row in logs %}
-<tr class="{% if row[7] %}table-danger{% endif %}">
+<tr class="{% if row[7] or row[8] %}table-danger{% endif %}">
 <td>{{row[0]}}</td><td>{{row[1]}}</td><td>{{row[2]}}</td>
-<td class="{{ severity_colors.get(row[5], '') }}">{{row[5]}}{{ '*' if row[7] else '' }}</td><td>{{'%.2f'|format(row[6])}}</td><td>{{row[3]}}</td>
+<td class="{{ severity_colors.get(row[5], '') }}">{{row[5]}}{{ '*' if row[7] else '' }}</td><td>{{'%.2f'|format(row[6])}}</td><td>{{ 'sim' if row[8] else 'nao' }}</td><td>{{row[3]}}</td>
 </tr>
 {% endfor %}
 </tbody>
@@ -46,9 +46,10 @@ async function fetchLogs() {
         <td>${row[2]}</td>
         <td class="${severityColors[row[5]] || ''}">${row[5]}${row[7] ? '*' : ''}</td>
         <td>${row[6].toFixed(2)}</td>
+        <td>${row[8] ? 'sim' : 'nao'}</td>
         <td>${row[3]}</td>
     `;
-    if (row[7]) {
+    if (row[7] || row[8]) {
         tr.classList.add('table-danger');
     }
     tbody.appendChild(tr);
