@@ -2,6 +2,7 @@ CREATE TABLE logs (
     id SERIAL PRIMARY KEY,
     timestamp TIMESTAMP,
     host TEXT,
+    program TEXT,
     message TEXT,
     category TEXT,
     severity TEXT,

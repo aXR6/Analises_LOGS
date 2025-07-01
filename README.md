@@ -78,7 +78,9 @@ python -m log_analyzer.tui_panel
 python -m log_analyzer.web_panel
 ```
 A aplicacao web ficará disponivel em `http://localhost:5000`. A listagem possui
-paginacao de 100 registros e filtros por severidade.
+paginacao de 100 registros e filtros por severidade. O nome do software
+responsavel por cada evento tambem é exibido e pode ser utilizado como filtro ao
+clicar sobre ele.
 Como opcao, execute `python menu.py` para gerenciar todas as funcionalidades a partir de um menu interativo.
 O menu tambem permite alternar entre execucao em **CPU** ou **GPU** para a
 analise com modelos LLM.

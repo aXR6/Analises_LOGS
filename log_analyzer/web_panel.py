@@ -35,13 +35,13 @@ TEMPLATE = """
 </div>
 <table id=\"log-table\" class=\"table table-striped\">
 <thead>
-<tr><th>ID</th><th>Timestamp</th><th>Host</th><th>Severidade</th><th>Anomalia</th><th>Semantica</th><th>Mensagem</th><th></th></tr>
+<tr><th>ID</th><th>Timestamp</th><th>Host</th><th>Programa</th><th>Severidade</th><th>Anomalia</th><th>Semantica</th><th>Mensagem</th><th></th></tr>
 </thead>
 <tbody>
 {% for row in logs %}
-<tr class="{% if row[7] or row[8] %}table-danger{% endif %}">
-<td>{{row[0]}}</td><td>{{row[1]}}</td><td>{{row[2]}}</td>
-<td class="{{ severity_colors.get(row[5], '') }}">{{row[5]}}{{ '*' if row[7] else '' }}</td><td>{{'%.2f'|format(row[6])}}</td><td>{{ 'sim' if row[8] else 'nao' }}</td><td>{{row[3]}}</td><td><button class="btn btn-sm btn-outline-primary" onclick="analyzeLog({{row[0]}})">Analisar</button></td>
+<tr class="{% if row[8] or row[9] %}table-danger{% endif %}">
+<td>{{row[0]}}</td><td>{{row[1]}}</td><td>{{row[2]}}</td><td><a href="?program={{row[3]}}">{{row[3]}}</a></td>
+<td class="{{ severity_colors.get(row[6], '') }}">{{row[6]}}{{ '*' if row[8] else '' }}</td><td>{{'%.2f'|format(row[7])}}</td><td>{{ 'sim' if row[9] else 'nao' }}</td><td>{{row[4]}}</td><td><button class="btn btn-sm btn-outline-primary" onclick="analyzeLog({{row[0]}})">Analisar</button></td>
 </tr>
 {% endfor %}
 </tbody>
@@ -62,7 +62,7 @@ TEMPLATE = """
 <script>
 const severityColors = {{ severity_colors | tojson }};
 async function fetchLogs(page = {{ page }}) {
-  const params = new URLSearchParams({page: page, severity: '{{ severity or '' }}'});
+  const params = new URLSearchParams({page: page, severity: '{{ severity or '' }}', program: '{{ program or '' }}'});
   const resp = await fetch('/api/logs?' + params.toString());
   if (!resp.ok) return;
   const data = await resp.json();
@@ -74,13 +74,14 @@ async function fetchLogs(page = {{ page }}) {
         <td>${row[0]}</td>
         <td>${row[1]}</td>
         <td>${row[2]}</td>
-        <td class="${severityColors[row[5]] || ''}">${row[5]}${row[7] ? '*' : ''}</td>
-        <td>${row[6].toFixed(2)}</td>
-        <td>${row[8] ? 'sim' : 'nao'}</td>
-        <td>${row[3]}</td>
+        <td><a href="?program=${row[3]}">${row[3]}</a></td>
+        <td class="${severityColors[row[6]] || ''}">${row[6]}${row[8] ? '*' : ''}</td>
+        <td>${row[7].toFixed(2)}</td>
+        <td>${row[9] ? 'sim' : 'nao'}</td>
+        <td>${row[4]}</td>
         <td><button class="btn btn-sm btn-outline-primary" onclick="analyzeLog(${row[0]})">Analisar</button></td>
     `;
-    if (row[7] || row[8]) {
+    if (row[8] || row[9]) {
         tr.classList.add('table-danger');
     }
     tbody.appendChild(tr);
@@ -107,8 +108,9 @@ setInterval(fetchLogs, 5000);
 def index():
     page = int(request.args.get('page', 1))
     severity = request.args.get('severity')
+    program = request.args.get('program')
     db = LogDB()
-    logs = list(db.fetch_logs(limit=100, page=page, severity=severity))
+    logs = list(db.fetch_logs(limit=100, page=page, severity=severity, program=program))
     db.close()
     severity_colors = {'INFO': 'text-info', 'WARNING': 'text-warning', 'ERROR': 'text-danger'}
     return render_template_string(
@@ -117,6 +119,7 @@ def index():
         severity_colors=severity_colors,
         page=page,
         severity=severity,
+        program=program,
     )
 
 
@@ -126,6 +129,7 @@ def api_logs():
     page = int(request.args.get('page', 1))
     severity = request.args.get('severity')
     host = request.args.get('host')
+    program = request.args.get('program')
     search = request.args.get('search')
     db = LogDB()
     logs = list(
@@ -134,6 +138,7 @@ def api_logs():
             page=page,
             severity=severity,
             host=host,
+            program=program,
             search=search,
         )
     )
