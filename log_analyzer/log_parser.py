@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Tuple
 from functools import lru_cache
 from transformers import pipeline
-from log_analyzer.config import SEVERITY_MODEL, ANOMALY_MODEL
+from log_analyzer.config import SEVERITY_MODEL, ANOMALY_MODEL, ANOMALY_THRESHOLD
 
 MALICIOUS_RE = re.compile(r'denied|attack|malware|unauthorized', re.IGNORECASE)
 
@@ -63,9 +63,13 @@ def parse_log_line(line: str) -> Tuple[str, str, str, str, float, bool]:
     severity = sev_res['label']
 
     anomaly_res = _anomaly_detector()(msg)[0]
-    # label_0 tends to represent normal lines in the available model
-    anomaly_score = anomaly_res['score'] if anomaly_res['label'] != 'LABEL_0' else 1 - anomaly_res['score']
+    # LABEL_0 usually represents normal lines in the available model
+    anomaly_score = (
+        anomaly_res['score']
+        if anomaly_res['label'] != 'LABEL_0'
+        else 1 - anomaly_res['score']
+    )
 
-    malicious = bool(MALICIOUS_RE.search(msg))
+    malicious = bool(MALICIOUS_RE.search(msg)) or anomaly_score >= ANOMALY_THRESHOLD
 
     return ts, host, msg, severity, anomaly_score, malicious
