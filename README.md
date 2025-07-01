@@ -79,6 +79,7 @@ python -m log_analyzer.web_panel
 ```
 
 A aplicacao web ficará disponivel em `http://localhost:5000`.
+Como opcao, execute `python menu.py` para gerenciar todas as funcionalidades a partir de um menu interativo.
 
 ## Estrutura de diretorios
 
