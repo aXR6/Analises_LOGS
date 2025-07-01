@@ -28,11 +28,9 @@ consulte [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md).
 pip install -r requirements.txt
 ```
 
-Copie o arquivo `.env.example` para `.env` e defina `DB_HOST`, `DB_PORT` e
-`DB_NAME` de acordo com a sua instalacao do PostgreSQL. Os campos de usuario e
-senha nao sao armazenados: a aplicacao solicitara essas informacoes em tempo de
-execucao. Todas as configuracoes de modelos LLM tambem sao carregadas desse
-arquivo.
+Copie o arquivo `.env.example` para `.env`. Todas as variáveis de conexão com
+o PostgreSQL já estão definidas utilizando o prefixo `PG_` e apontam para o
+banco padrão do projeto.
 
 ## Uso
 

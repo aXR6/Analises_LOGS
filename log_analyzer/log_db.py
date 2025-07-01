@@ -1,23 +1,13 @@
 import psycopg2
-from getpass import getpass
 from typing import Iterable, Tuple, Any
 
 from .config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 
 
 class LogDB:
-    _user = None
-    _password = None
-
     def __init__(self):
-        user = DB_USER or LogDB._user
-        password = DB_PASSWORD or LogDB._password
-        if user is None:
-            user = input("Usuario do banco: ")
-            LogDB._user = user
-        if password is None:
-            password = getpass("Senha do banco: ")
-            LogDB._password = password
+        user = DB_USER
+        password = DB_PASSWORD
 
         self.conn = psycopg2.connect(
             host=DB_HOST,
