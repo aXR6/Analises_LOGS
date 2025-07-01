@@ -14,16 +14,20 @@ MONTHS = {
     'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
 }
 
-SYSLOG_RE = re.compile(r'^(?P<month>\w{3})\s+(?P<day>\d{1,2})\s+(?P<time>\d{2}:\d{2}:\d{2})\s+(?P<host>\S+)\s+(?P<msg>.*)$')
+SYSLOG_RE = re.compile(
+    r'^(?P<month>\w{3})\s+(?P<day>\d{1,2})\s+(?P<time>\d{2}:\d{2}:\d{2})\s+(?P<host>\S+)\s+(?P<msg>.*)$'
+)
+
+# Formato ISO 8601 utilizado quando a configuracao recomendada em
+# docs/rsyslog_optimization.md esta habilitada.
+ISO_RE = re.compile(
+    r'^(?P<ts>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))\s+(?P<host>\S+)\s+(?P<msg>.*)$'
+)
 
 
 def parse_log_line(line: str) -> Tuple[str, str, str, str, bool]:
     match = SYSLOG_RE.match(line)
-    if not match:
-        ts = datetime.utcnow().isoformat()
-        host = 'unknown'
-        msg = line.strip()
-    else:
+    if match:
         month = MONTHS.get(match.group('month'), 1)
         day = int(match.group('day'))
         time_part = match.group('time')
@@ -31,6 +35,18 @@ def parse_log_line(line: str) -> Tuple[str, str, str, str, bool]:
         ts = datetime(year, month, day, *map(int, time_part.split(':'))).isoformat()
         host = match.group('host')
         msg = match.group('msg')
+    else:
+        iso_match = ISO_RE.match(line)
+        if iso_match:
+            ts = iso_match.group('ts')
+            # converte para ISO padronizado
+            ts = datetime.fromisoformat(ts.replace('Z', '+00:00')).isoformat()
+            host = iso_match.group('host')
+            msg = iso_match.group('msg')
+        else:
+            ts = datetime.utcnow().isoformat()
+            host = 'unknown'
+            msg = line.strip()
 
     category = 'INFO'
     malicious = False
