@@ -36,9 +36,10 @@ codigo fonte não define mais valores padrão.
 
 1. Configure o `rsyslog` para gravar seus eventos em `rsyslog.log` (ou no caminho
    definido na variavel `LOG_FILE` do `.env`) na raiz do
-   projeto. Para uma configuracao mais eficiente, consulte o arquivo
-   [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) e salve o
-   conteudo sugerido em `/etc/rsyslog.d/50-log_analyzer.conf`.
+    projeto. Para uma configuracao mais eficiente, consulte o arquivo
+    [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) e salve o
+    conteudo sugerido em `/etc/rsyslog.d/50-log_analyzer.conf`. Certifique-se de
+    definir o template antes da `action` para evitar erros de configuracao.
 
    Caso prefira uma configuracao minima, o seguinte exemplo tambem funciona:
 

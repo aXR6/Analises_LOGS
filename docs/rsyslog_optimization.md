@@ -25,7 +25,13 @@ main_queue(
 )
 ```
 
-3. Utilize escrita assincrona para reduzir bloqueios de I/O ao enviar eventos para o arquivo lido pelo coletor:
+3. Defina um `template` em formato RFC 3339 para que o parser consiga extrair os campos de forma eficiente **antes** de utilizá-lo:
+
+```conf
+template(name="LogAnalyzerFormat" type="string" string="%timestamp:::date-rfc3339% %HOSTNAME% %syslogtag%%msg%\n")
+```
+
+4. Utilize escrita assincrona para reduzir bloqueios de I/O ao enviar eventos para o arquivo lido pelo coletor:
 
 ```conf
 action(
@@ -34,12 +40,6 @@ action(
     template="LogAnalyzerFormat"
     asyncWriting="on"
 )
-```
-
-4. Defina um `template` em formato RFC 3339 para que o parser consiga extrair os campos de forma eficiente:
-
-```conf
-template(name="LogAnalyzerFormat" type="string" string="%timestamp:::date-rfc3339% %HOSTNAME% %syslogtag%%msg%\n")
 ```
 
 Salve o trecho acima em `/etc/rsyslog.d/50-log_analyzer.conf`, reinicie o `rsyslog` com `sudo systemctl restart rsyslog` e execute o coletor normalmente.
