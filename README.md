@@ -28,9 +28,9 @@ consulte [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md).
 pip install -r requirements.txt
 ```
 
-Copie o arquivo `.env.example` para `.env`. Todas as variáveis de conexão com
-o PostgreSQL já estão definidas utilizando o prefixo `PG_` e apontam para o
-banco padrão do projeto.
+Copie o arquivo `.env.example` para `.env` e preencha as credenciais do banco.
+Todas as informações sensíveis devem ficar apenas nesse arquivo, já que o
+codigo fonte não define mais valores padrão.
 
 ## Uso
 
