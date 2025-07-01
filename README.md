@@ -77,8 +77,8 @@ python -m log_analyzer.tui_panel
 ```bash
 python -m log_analyzer.web_panel
 ```
-
-A aplicacao web ficará disponivel em `http://localhost:5000`.
+A aplicacao web ficará disponivel em `http://localhost:5000`. A listagem possui
+paginacao de 100 registros e filtros por severidade.
 Como opcao, execute `python menu.py` para gerenciar todas as funcionalidades a partir de um menu interativo.
 
 ## Estrutura de diretorios
@@ -107,3 +107,14 @@ python -m log_analyzer.semantic_anomaly caminho/para/arquivo.log
 ```
 
 Linhas rotuladas com o cluster `-1` sao tratadas como anomalias.
+
+## Analise com modelos LLM
+
+E possivel enviar uma entrada especifica do banco para analise por um modelo
+compatível com a API do **Ollama**. Configure `OLLAMA_ENDPOINT` e
+`OLLAMA_MODEL` no `.env` e utilize o painel web para acionar a analise ou
+execute manualmente:
+
+```bash
+python -m log_analyzer.llm_analysis ID_DO_LOG
+```
