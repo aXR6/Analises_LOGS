@@ -1,7 +1,7 @@
 # Analise de Logs com rsyslog
 
 Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco de dados
-SQLite e fornece dois paineis de monitoramento. A classificacao de severidade
+PostgreSQL e fornece dois paineis de monitoramento. A classificacao de severidade
 dos logs utiliza o modelo **byviz/bylastic_classification_logs** disponivel no
 Hugging Face. Alem disso, uma pontuacao de anomalia eh gerada com o modelo
 **teoogherghi/Log-Analysis-Model-DistilBert**.
@@ -28,9 +28,11 @@ consulte [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md).
 pip install -r requirements.txt
 ```
 
-Copie o arquivo `.env.example` para `.env` e ajuste os caminhos e modelos
-conforme necessario. Todas as configuracoes de banco de dados e modelos LLM sao
-carregadas desse arquivo.
+Copie o arquivo `.env.example` para `.env` e defina `DB_HOST`, `DB_PORT` e
+`DB_NAME` de acordo com a sua instalacao do PostgreSQL. Os campos de usuario e
+senha nao sao armazenados: a aplicacao solicitara essas informacoes em tempo de
+execucao. Todas as configuracoes de modelos LLM tambem sao carregadas desse
+arquivo.
 
 ## Uso
 
@@ -73,9 +75,8 @@ A aplicacao web ficará disponivel em `http://localhost:5000`.
 
 - `log_analyzer/` - codigo fonte principal
 - `rsyslog.log` - arquivo lido pelo coletor (configuravel via `.env`)
-- `logs.db` - banco SQLite criado automaticamente (configuravel via `.env`)
-- `schema.sql` - definicao completa da estrutura SQL utilizada
-- `.env.example` - arquivo de exemplo com variaveis de configuracao
+- `schema.sql` - definicao da tabela utilizada no PostgreSQL
+- `.env.example` - arquivo de exemplo com variaveis de configuracao do banco
 
 ## Alertas
 

@@ -4,3 +4,4 @@ transformers
 torch
 logai
 python-dotenv
+psycopg2-binary
