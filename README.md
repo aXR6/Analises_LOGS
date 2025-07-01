@@ -4,9 +4,12 @@ Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco de dados
 SQLite e fornece dois paineis de monitoramento:
 
 - **Painel de terminal** utilizando a biblioteca `rich`.
-- **Painel web** simples utilizando Flask.
+ - **Painel web** simples utilizando Flask.
 
 Logs considerados maliciosos geram alertas imediatos exibidos no terminal.
+
+Para configuracoes de alto desempenho do `rsyslog` em ambientes Debian 12
+consulte [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md).
 
 ## Requisitos
 
@@ -22,14 +25,18 @@ pip install -r requirements.txt
 ## Uso
 
 1. Configure o `rsyslog` para gravar seus eventos em `rsyslog.log` na raiz do
-   projeto. Um exemplo simples de configuracao em `/etc/rsyslog.d/50-default.conf`:
-   
+   projeto. Para uma configuracao mais eficiente, consulte o arquivo
+   [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) e salve o
+   conteudo sugerido em `/etc/rsyslog.d/50-log_analyzer.conf`.
+
+   Caso prefira uma configuracao minima, o seguinte exemplo tambem funciona:
+
    ```
    *.* @@127.0.0.1:514
    ```
-   
-   Em seguida, direcione para arquivo local usando o utilitario `logger` ou uma
-   configuracao personalizada conforme a necessidade.
+
+   Depois de ajustar o `rsyslog`, utilize o utilitario `logger` ou suas
+   aplicacoes para gerar eventos.
 
 2. Inicie o coletor que ira ler continuamente o arquivo de log e popular o banco:
 
