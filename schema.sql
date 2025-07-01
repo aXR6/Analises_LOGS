@@ -9,3 +9,10 @@ CREATE TABLE logs (
     malicious BOOLEAN,
     semantic_outlier BOOLEAN
 );
+
+CREATE TABLE log_analysis (
+    id SERIAL PRIMARY KEY,
+    log_id INTEGER REFERENCES logs(id),
+    analysis TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

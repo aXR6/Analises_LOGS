@@ -80,6 +80,8 @@ python -m log_analyzer.web_panel
 A aplicacao web ficará disponivel em `http://localhost:5000`. A listagem possui
 paginacao de 100 registros e filtros por severidade.
 Como opcao, execute `python menu.py` para gerenciar todas as funcionalidades a partir de um menu interativo.
+O menu tambem permite alternar entre execucao em **CPU** ou **GPU** para a
+analise com modelos LLM.
 
 ## Estrutura de diretorios
 
@@ -111,10 +113,11 @@ Linhas rotuladas com o cluster `-1` sao tratadas como anomalias.
 ## Analise com modelos LLM
 
 E possivel enviar uma entrada especifica do banco para analise por um modelo
-compatível com a API do **Ollama**. Configure `OLLAMA_ENDPOINT` e
-`OLLAMA_MODEL` no `.env` e utilize o painel web para acionar a analise ou
-execute manualmente:
+da **Hugging Face**. Defina `HUGGINGFACE_MODEL` e `DEVICE_TYPE` no `.env` e
+utilize o painel web para acionar a analise ou execute manualmente:
 
 ```bash
 python -m log_analyzer.llm_analysis ID_DO_LOG
 ```
+O resultado da analise e armazenado na tabela `log_analysis`, ligado ao
+registro original.

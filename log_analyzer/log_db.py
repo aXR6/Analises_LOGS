@@ -33,6 +33,14 @@ class LogDB:
                     semantic_outlier BOOLEAN
             )"""
         )
+        cur.execute(
+            """CREATE TABLE IF NOT EXISTS log_analysis (
+                    id SERIAL PRIMARY KEY,
+                    log_id INTEGER REFERENCES logs(id),
+                    analysis TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
         cur.close()
         self.conn.commit()
 
@@ -113,6 +121,25 @@ class LogDB:
         cur = self.conn.cursor()
         cur.execute(
             "SELECT category, COUNT(*) FROM logs GROUP BY category"
+        )
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+
+    def insert_analysis(self, log_id: int, analysis: str) -> None:
+        cur = self.conn.cursor()
+        cur.execute(
+            "INSERT INTO log_analysis (log_id, analysis) VALUES (%s, %s)",
+            (log_id, analysis),
+        )
+        cur.close()
+        self.conn.commit()
+
+    def fetch_analysis(self, log_id: int) -> Iterable[Tuple[Any, ...]]:
+        cur = self.conn.cursor()
+        cur.execute(
+            "SELECT id, analysis, created_at FROM log_analysis WHERE log_id = %s ORDER BY id DESC",
+            (log_id,),
         )
         rows = cur.fetchall()
         cur.close()
