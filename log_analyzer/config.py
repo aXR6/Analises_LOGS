@@ -5,12 +5,12 @@ from dotenv import load_dotenv
 # Load environment variables from .env if present
 load_dotenv()
 
-# Parametros de conexao com valores padrao do banco principal
-DB_HOST = os.getenv("PG_HOST", "172.16.187.133")
-DB_PORT = int(os.getenv("PG_PORT", "5432"))
-DB_NAME = os.getenv("PG_DB", "resultscan")
-DB_USER = os.getenv("PG_USER", "vector_store")
-DB_PASSWORD = os.getenv("PG_PASS", "902grego1989")
+# Parametros de conexao definidos exclusivamente via variáveis de ambiente
+DB_HOST = os.getenv("PG_HOST")
+DB_PORT = int(os.getenv("PG_PORT"))
+DB_NAME = os.getenv("PG_DB")
+DB_USER = os.getenv("PG_USER")
+DB_PASSWORD = os.getenv("PG_PASS")
 
 LOG_FILE = Path(os.getenv("LOG_FILE", "rsyslog.log"))
 
