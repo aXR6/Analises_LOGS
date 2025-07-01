@@ -1,2 +1,5 @@
 flask
 rich
+transformers
+torch
+logai

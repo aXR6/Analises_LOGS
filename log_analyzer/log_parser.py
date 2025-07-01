@@ -1,13 +1,10 @@
 import re
 from datetime import datetime
 from typing import Tuple
+from functools import lru_cache
+from transformers import pipeline
 
-CATEGORY_PATTERNS = {
-    'ERROR': re.compile(r'error|failed', re.IGNORECASE),
-    'WARNING': re.compile(r'warning|deprecated', re.IGNORECASE),
-    'CRITICAL': re.compile(r'critical', re.IGNORECASE),
-    'MALICIOUS': re.compile(r'denied|attack|malware|unauthorized', re.IGNORECASE),
-}
+MALICIOUS_RE = re.compile(r'denied|attack|malware|unauthorized', re.IGNORECASE)
 
 MONTHS = {
     'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
@@ -25,7 +22,19 @@ ISO_RE = re.compile(
 )
 
 
-def parse_log_line(line: str) -> Tuple[str, str, str, str, bool]:
+@lru_cache(maxsize=1)
+def _severity_classifier():
+    """Lazy load classifier for severity levels."""
+    return pipeline("text-classification", model="byviz/bylastic_classification_logs")
+
+
+@lru_cache(maxsize=1)
+def _anomaly_detector():
+    """Lazy load anomaly detection model."""
+    return pipeline("text-classification", model="teoogherghi/Log-Analysis-Model-DistilBert")
+
+
+def parse_log_line(line: str) -> Tuple[str, str, str, str, float, bool]:
     match = SYSLOG_RE.match(line)
     if match:
         month = MONTHS.get(match.group('month'), 1)
@@ -48,13 +57,14 @@ def parse_log_line(line: str) -> Tuple[str, str, str, str, bool]:
             host = 'unknown'
             msg = line.strip()
 
-    category = 'INFO'
-    malicious = False
-    for cat, regex in CATEGORY_PATTERNS.items():
-        if regex.search(msg):
-            category = cat
-            if cat == 'MALICIOUS':
-                malicious = True
-            break
+    # Detection using LLM models
+    sev_res = _severity_classifier()(msg)[0]
+    severity = sev_res['label']
 
-    return ts, host, msg, category, malicious
+    anomaly_res = _anomaly_detector()(msg)[0]
+    # label_0 tends to represent normal lines in the available model
+    anomaly_score = anomaly_res['score'] if anomaly_res['label'] != 'LABEL_0' else 1 - anomaly_res['score']
+
+    malicious = bool(MALICIOUS_RE.search(msg))
+
+    return ts, host, msg, severity, anomaly_score, malicious

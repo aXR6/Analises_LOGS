@@ -21,12 +21,13 @@ def display_loop(refresh: int = 2):
             logs_table.add_column("ID")
             logs_table.add_column("Timestamp")
             logs_table.add_column("Host")
-            logs_table.add_column("Categoria")
+            logs_table.add_column("Severidade")
+            logs_table.add_column("Anomalia")
             logs_table.add_column("Mensagem")
             for row in db.fetch_logs(limit=10):
-                log_id, ts, host, msg, category, mal = row
+                log_id, ts, host, msg, category, severity, anomaly_score, mal = row
                 tag = "*" if mal else ""
-                logs_table.add_row(str(log_id), ts, host, category + tag, msg)
+                logs_table.add_row(str(log_id), ts, host, severity + tag, f"{anomaly_score:.2f}", msg)
             console.print(logs_table)
             sleep(refresh)
     finally:

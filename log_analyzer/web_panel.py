@@ -7,11 +7,11 @@ TEMPLATE = """
 <title>Monitor de Logs</title>
 <h1>Eventos Recentes</h1>
 <table border=1>
-<tr><th>ID</th><th>Timestamp</th><th>Host</th><th>Categoria</th><th>Mensagem</th></tr>
+<tr><th>ID</th><th>Timestamp</th><th>Host</th><th>Severidade</th><th>Anomalia</th><th>Mensagem</th></tr>
 {% for row in logs %}
 <tr>
 <td>{{row[0]}}</td><td>{{row[1]}}</td><td>{{row[2]}}</td>
-<td>{{row[4]}}{{ '*' if row[5] else '' }}</td><td>{{row[3]}}</td>
+<td>{{row[5]}}{{ '*' if row[7] else '' }}</td><td>{{'%.2f'|format(row[6])}}</td><td>{{row[3]}}</td>
 </tr>
 {% endfor %}
 </table>
