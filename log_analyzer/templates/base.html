@@ -14,9 +14,36 @@
     </ul>
   </div>
 </nav>
+<div id="toolbar" class="bg-body-secondary py-2">
+  <div class="container d-flex flex-wrap gap-3 small">
+    <span id="severity-info"></span>
+    <span id="attack-info"></span>
+    <span id="iface-info"></span>
+  </div>
+</div>
 <div class="container my-4">
 {% block content %}{% endblock %}
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const SEVERITY_COLORS = {{ severity_colors | tojson }};
+async function fetchStats() {
+  const resp = await fetch('/api/stats');
+  if (!resp.ok) return;
+  const data = await resp.json();
+  const sev = document.getElementById('severity-info');
+  const attacks = document.getElementById('attack-info');
+  const iface = document.getElementById('iface-info');
+  sev.innerHTML = Object.entries(data.severity).map(
+    ([k,v]) => `<span class="${SEVERITY_COLORS[k] || ''} me-2">${k}: ${v}</span>`
+  ).join(' ');
+  attacks.textContent = Object.entries(data.attacks).map(
+    ([k,v]) => `${k}: ${v}`
+  ).join(' ');
+  iface.textContent = `Ativas: ${data.interfaces.active.join(', ')} | Atividade: ${data.interfaces.activity.join(', ')}`;
+}
+fetchStats();
+setInterval(fetchStats, 5000);
+</script>
 </body>
 </html>
