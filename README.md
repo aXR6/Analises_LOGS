@@ -94,3 +94,16 @@ Linhas que contenham termos como `denied`, `attack` ou `malware` sao
 classificadas como **MALICIOUS** e geram uma mensagem de alerta no terminal.
 Adicionalmente, entradas cujo `anomaly_score` ultrapassa o valor definido em
 `ANOMALY_THRESHOLD` tambem sao tratadas como suspeitas.
+
+## Detecao de Anomalias Semanticas
+
+Para detectar padroes incomuns no texto dos logs e possivel executar o modulo
+`log_analyzer.semantic_anomaly`. O utilitario gera embeddings utilizando o
+modelo `all-MiniLM-L6-v2` da biblioteca *sentence-transformers* e aplica o
+algoritmo DBSCAN para identificar mensagens atipicas.
+
+```bash
+python -m log_analyzer.semantic_anomaly caminho/para/arquivo.log
+```
+
+Linhas rotuladas com o cluster `-1` sao tratadas como anomalias.
