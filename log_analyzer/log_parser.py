@@ -35,7 +35,7 @@ def _anomaly_detector():
     return pipeline("text-classification", model=ANOMALY_MODEL)
 
 
-def parse_log_line(line: str) -> Tuple[str, str, str, str, float, bool]:
+def parse_log_line(line: str) -> Tuple[str, str, str, str, str, float, bool]:
     match = SYSLOG_RE.match(line)
     if match:
         month = MONTHS.get(match.group('month'), 1)
@@ -44,7 +44,7 @@ def parse_log_line(line: str) -> Tuple[str, str, str, str, float, bool]:
         year = datetime.utcnow().year
         ts = datetime(year, month, day, *map(int, time_part.split(':'))).isoformat()
         host = match.group('host')
-        msg = match.group('msg')
+        remainder = match.group('msg')
     else:
         iso_match = ISO_RE.match(line)
         if iso_match:
@@ -52,11 +52,19 @@ def parse_log_line(line: str) -> Tuple[str, str, str, str, float, bool]:
             # converte para ISO padronizado
             ts = datetime.fromisoformat(ts.replace('Z', '+00:00')).isoformat()
             host = iso_match.group('host')
-            msg = iso_match.group('msg')
+            remainder = iso_match.group('msg')
         else:
             ts = datetime.utcnow().isoformat()
             host = 'unknown'
-            msg = line.strip()
+            remainder = line.strip()
+
+    prog_match = re.match(r'(?P<prog>[^: ]+)(?:\[\d+\])?:\s*(?P<msg>.*)', remainder)
+    if prog_match:
+        program = prog_match.group('prog')
+        msg = prog_match.group('msg')
+    else:
+        program = 'unknown'
+        msg = remainder
 
     # Detection using LLM models
     sev_res = _severity_classifier()(msg)[0]
@@ -72,4 +80,4 @@ def parse_log_line(line: str) -> Tuple[str, str, str, str, float, bool]:
 
     malicious = bool(MALICIOUS_RE.search(msg)) or anomaly_score >= ANOMALY_THRESHOLD
 
-    return ts, host, msg, severity, anomaly_score, malicious
+    return ts, host, program, msg, severity, anomaly_score, malicious

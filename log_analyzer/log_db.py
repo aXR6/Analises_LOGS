@@ -25,6 +25,7 @@ class LogDB:
                     id SERIAL PRIMARY KEY,
                     timestamp TIMESTAMP,
                     host TEXT,
+                    program TEXT,
                     message TEXT,
                     category TEXT,
                     severity TEXT,
@@ -44,14 +45,14 @@ class LogDB:
         cur.close()
         self.conn.commit()
 
-    def insert_log(self, timestamp: str, host: str, message: str,
+    def insert_log(self, timestamp: str, host: str, program: str, message: str,
                    category: str, severity: str, anomaly_score: float,
                    malicious: bool, semantic_outlier: bool) -> None:
         cur = self.conn.cursor()
         cur.execute(
-            "INSERT INTO logs (timestamp, host, message, category, severity, anomaly_score, malicious, semantic_outlier)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-            (timestamp, host, message, category, severity, anomaly_score, malicious, semantic_outlier)
+            "INSERT INTO logs (timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier)"
+            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier)
         )
         cur.close()
         self.conn.commit()
@@ -62,11 +63,12 @@ class LogDB:
         page: int | None = None,
         severity: str | None = None,
         host: str | None = None,
+        program: str | None = None,
         search: str | None = None,
     ) -> Iterable[Tuple[Any, ...]]:
         """Return logs optionally paginated and filtered."""
         query = (
-            "SELECT id, timestamp, host, message, category, severity, anomaly_score, malicious, semantic_outlier"
+            "SELECT id, timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier"
             " FROM logs"
         )
         clauses: list[str] = []
@@ -77,6 +79,9 @@ class LogDB:
         if host:
             clauses.append("host = %s")
             params.append(host)
+        if program:
+            clauses.append("program = %s")
+            params.append(program)
         if search:
             clauses.append("message ILIKE %s")
             params.append(f"%{search}%")

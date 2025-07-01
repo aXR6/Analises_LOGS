@@ -25,10 +25,10 @@ def main():
     db = LogDB()
     semantic = OnlineSemanticDetector()
     for line in follow(LOG_FILE):
-        ts, host, msg, severity, anomaly_score, malicious = parse_log_line(line)
+        ts, host, program, msg, severity, anomaly_score, malicious = parse_log_line(line)
         semantic_outlier = semantic.add(msg)
         db.insert_log(
-            ts, host, msg, severity, severity, anomaly_score, malicious, semantic_outlier
+            ts, host, program, msg, severity, severity, anomaly_score, malicious, semantic_outlier
         )
         if malicious or semantic_outlier:
             alert(msg)
