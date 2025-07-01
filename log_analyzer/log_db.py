@@ -42,6 +42,23 @@ class LogDB:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )"""
         )
+        cur.execute(
+            """CREATE TABLE IF NOT EXISTS analyzed_logs (
+                    id SERIAL PRIMARY KEY,
+                    log_id INTEGER UNIQUE REFERENCES logs(id),
+                    timestamp TIMESTAMP,
+                    host TEXT,
+                    program TEXT,
+                    message TEXT,
+                    category TEXT,
+                    severity TEXT,
+                    anomaly_score REAL,
+                    malicious BOOLEAN,
+                    semantic_outlier BOOLEAN,
+                    analysis TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
         cur.close()
         self.conn.commit()
 
@@ -140,12 +157,60 @@ class LogDB:
         cur.close()
         self.conn.commit()
 
+    def insert_analyzed_log(self, log_id: int, analysis: str) -> None:
+        """Copy log to analyzed_logs table along with the analysis result."""
+        cur = self.conn.cursor()
+        cur.execute(
+            "SELECT timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier "
+            "FROM logs WHERE id = %s",
+            (log_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            cur.close()
+            return
+        cur.execute(
+            """
+            INSERT INTO analyzed_logs (log_id, timestamp, host, program, message, category, severity,
+                                      anomaly_score, malicious, semantic_outlier, analysis)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (log_id) DO UPDATE SET analysis = EXCLUDED.analysis,
+                created_at = CURRENT_TIMESTAMP
+            """,
+            (log_id, *row, analysis),
+        )
+        cur.close()
+        self.conn.commit()
+
     def fetch_analysis(self, log_id: int) -> Iterable[Tuple[Any, ...]]:
         cur = self.conn.cursor()
         cur.execute(
             "SELECT id, analysis, created_at FROM log_analysis WHERE log_id = %s ORDER BY id DESC",
             (log_id,),
         )
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+
+    def fetch_analyzed_logs(
+        self, limit: int = 100, page: int | None = None
+    ) -> Iterable[Tuple[Any, ...]]:
+        """Return logs that have been analyzed by the LLM."""
+        query = (
+            "SELECT log_id, timestamp, host, program, message, category, severity,"
+            " anomaly_score, malicious, semantic_outlier, analysis, created_at"
+            " FROM analyzed_logs ORDER BY created_at DESC"
+        )
+        params: list[Any] = []
+        if page is not None:
+            offset = (page - 1) * limit
+            query += " LIMIT %s OFFSET %s"
+            params.extend([limit, offset])
+        else:
+            query += " LIMIT %s"
+            params.append(limit)
+        cur = self.conn.cursor()
+        cur.execute(query, tuple(params))
         rows = cur.fetchall()
         cur.close()
         return rows
