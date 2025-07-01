@@ -1,12 +1,18 @@
 # Analise de Logs com rsyslog
 
 Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco de dados
-SQLite e fornece dois paineis de monitoramento:
+SQLite e fornece dois paineis de monitoramento. A classificacao de severidade
+dos logs utiliza o modelo **byviz/bylastic_classification_logs** disponivel no
+Hugging Face. Alem disso, uma pontuacao de anomalia eh gerada com o modelo
+**teoogherghi/Log-Analysis-Model-DistilBert**.
+
+Painéis disponíveis:
 
 - **Painel de terminal** utilizando a biblioteca `rich`.
  - **Painel web** simples utilizando Flask.
 
-Logs considerados maliciosos geram alertas imediatos exibidos no terminal.
+Logs contendo termos como `denied`, `attack` ou `malware` geram alertas imediatos
+exibidos no terminal e sao marcados como maliciosos no banco de dados.
 
 Para configuracoes de alto desempenho do `rsyslog` em ambientes Debian 12
 consulte [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md).
@@ -63,6 +69,7 @@ A aplicacao web ficará disponivel em `http://localhost:5000`.
 - `log_analyzer/` - codigo fonte principal
 - `rsyslog.log` - arquivo lido pelo coletor (pode ser alterado no codigo)
 - `logs.db` - banco SQLite criado automaticamente
+- `schema.sql` - definicao completa da estrutura SQL utilizada
 
 ## Alertas
 

@@ -19,25 +19,35 @@ class LogDB:
                     host TEXT,
                     message TEXT,
                     category TEXT,
+                    severity TEXT,
+                    anomaly_score REAL,
                     malicious INTEGER
             )"""
         )
+        # ensure new columns exist when migrating from older versions
+        cur.execute("PRAGMA table_info(logs)")
+        cols = [row[1] for row in cur.fetchall()]
+        if 'severity' not in cols:
+            cur.execute("ALTER TABLE logs ADD COLUMN severity TEXT")
+        if 'anomaly_score' not in cols:
+            cur.execute("ALTER TABLE logs ADD COLUMN anomaly_score REAL")
         self.conn.commit()
 
     def insert_log(self, timestamp: str, host: str, message: str,
-                   category: str, malicious: bool) -> None:
+                   category: str, severity: str, anomaly_score: float,
+                   malicious: bool) -> None:
         cur = self.conn.cursor()
         cur.execute(
-            "INSERT INTO logs (timestamp, host, message, category, malicious)"
-            " VALUES (?, ?, ?, ?, ?)",
-            (timestamp, host, message, category, int(malicious))
+            "INSERT INTO logs (timestamp, host, message, category, severity, anomaly_score, malicious)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (timestamp, host, message, category, severity, anomaly_score, int(malicious))
         )
         self.conn.commit()
 
     def fetch_logs(self, limit: int = 100) -> Iterable[Tuple[Any, ...]]:
         cur = self.conn.cursor()
         cur.execute(
-            "SELECT id, timestamp, host, message, category, malicious"
+            "SELECT id, timestamp, host, message, category, severity, anomaly_score, malicious"
             " FROM logs ORDER BY id DESC LIMIT ?",
             (limit,)
         )

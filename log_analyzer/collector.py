@@ -24,8 +24,8 @@ def alert(msg: str) -> None:
 def main():
     db = LogDB()
     for line in follow(LOG_FILE):
-        ts, host, msg, category, malicious = parse_log_line(line)
-        db.insert_log(ts, host, msg, category, malicious)
+        ts, host, msg, severity, anomaly_score, malicious = parse_log_line(line)
+        db.insert_log(ts, host, msg, severity, severity, anomaly_score, malicious)
         if malicious:
             alert(msg)
 
