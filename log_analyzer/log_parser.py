@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Tuple
 from functools import lru_cache
 from transformers import pipeline
+from log_analyzer.config import SEVERITY_MODEL, ANOMALY_MODEL
 
 MALICIOUS_RE = re.compile(r'denied|attack|malware|unauthorized', re.IGNORECASE)
 
@@ -25,13 +26,13 @@ ISO_RE = re.compile(
 @lru_cache(maxsize=1)
 def _severity_classifier():
     """Lazy load classifier for severity levels."""
-    return pipeline("text-classification", model="byviz/bylastic_classification_logs")
+    return pipeline("text-classification", model=SEVERITY_MODEL)
 
 
 @lru_cache(maxsize=1)
 def _anomaly_detector():
     """Lazy load anomaly detection model."""
-    return pipeline("text-classification", model="teoogherghi/Log-Analysis-Model-DistilBert")
+    return pipeline("text-classification", model=ANOMALY_MODEL)
 
 
 def parse_log_line(line: str) -> Tuple[str, str, str, str, float, bool]:

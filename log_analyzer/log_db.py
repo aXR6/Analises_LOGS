@@ -2,10 +2,10 @@ import sqlite3
 from pathlib import Path
 from typing import Iterable, Tuple, Any
 
-DB_PATH = Path('logs.db')
+from .config import LOG_DB_PATH
 
 class LogDB:
-    def __init__(self, db_path: Path = DB_PATH):
+    def __init__(self, db_path: Path = LOG_DB_PATH):
         self.db_path = db_path
         self.conn = sqlite3.connect(self.db_path)
         self._init_db()

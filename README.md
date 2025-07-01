@@ -28,9 +28,14 @@ consulte [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md).
 pip install -r requirements.txt
 ```
 
+Copie o arquivo `.env.example` para `.env` e ajuste os caminhos e modelos
+conforme necessario. Todas as configuracoes de banco de dados e modelos LLM sao
+carregadas desse arquivo.
+
 ## Uso
 
-1. Configure o `rsyslog` para gravar seus eventos em `rsyslog.log` na raiz do
+1. Configure o `rsyslog` para gravar seus eventos em `rsyslog.log` (ou no caminho
+   definido na variavel `LOG_FILE` do `.env`) na raiz do
    projeto. Para uma configuracao mais eficiente, consulte o arquivo
    [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) e salve o
    conteudo sugerido em `/etc/rsyslog.d/50-log_analyzer.conf`.
@@ -67,9 +72,10 @@ A aplicacao web ficará disponivel em `http://localhost:5000`.
 ## Estrutura de diretorios
 
 - `log_analyzer/` - codigo fonte principal
-- `rsyslog.log` - arquivo lido pelo coletor (pode ser alterado no codigo)
-- `logs.db` - banco SQLite criado automaticamente
+- `rsyslog.log` - arquivo lido pelo coletor (configuravel via `.env`)
+- `logs.db` - banco SQLite criado automaticamente (configuravel via `.env`)
 - `schema.sql` - definicao completa da estrutura SQL utilizada
+- `.env.example` - arquivo de exemplo com variaveis de configuracao
 
 ## Alertas
 
