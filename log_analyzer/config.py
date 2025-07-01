@@ -24,6 +24,12 @@ ANOMALY_MODEL = os.getenv(
 # Model used for semantic anomaly detection via SentenceTransformers
 SEMANTIC_MODEL = os.getenv("SEMANTIC_MODEL", "all-MiniLM-L6-v2")
 
+# Configuration for optional LLM analysis via Ollama API
+OLLAMA_ENDPOINT = os.getenv(
+    "OLLAMA_ENDPOINT", "http://localhost:11434/api/generate"
+)
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama2")
+
 # Minimum score to treat a log as anomalous. The default value is
 # conservative because the DistilBERT model was trained to separate
 # normal lines from anomalies and may produce high scores for benign
