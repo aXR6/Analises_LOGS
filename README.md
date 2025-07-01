@@ -122,4 +122,5 @@ utilize o painel web para acionar a analise ou execute manualmente:
 python -m log_analyzer.llm_analysis ID_DO_LOG
 ```
 O resultado da analise e armazenado na tabela `log_analysis`, ligado ao
-registro original.
+registro original. Alem disso, o log analisado juntamente com o resumo gerado
+eh copiado para a tabela `analyzed_logs` para facilitar consultas futuras.

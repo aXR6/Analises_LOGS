@@ -32,6 +32,7 @@ def analyze_log(log_id: int, context: int = 5) -> str:
         pipe = _get_pipeline()
         result = pipe(prompt, max_new_tokens=200)[0]["generated_text"]
         db.insert_analysis(log_id, result)
+        db.insert_analyzed_log(log_id, result)
         db.close()
         return result
     except Exception as exc:

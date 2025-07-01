@@ -17,3 +17,19 @@ CREATE TABLE log_analysis (
     analysis TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE analyzed_logs (
+    id SERIAL PRIMARY KEY,
+    log_id INTEGER UNIQUE REFERENCES logs(id),
+    timestamp TIMESTAMP,
+    host TEXT,
+    program TEXT,
+    message TEXT,
+    category TEXT,
+    severity TEXT,
+    anomaly_score REAL,
+    malicious BOOLEAN,
+    semantic_outlier BOOLEAN,
+    analysis TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

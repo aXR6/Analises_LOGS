@@ -1,9 +1,10 @@
-from flask import Flask, render_template_string, jsonify, request
+from flask import Flask, render_template_string, jsonify, request, redirect, url_for
 from log_analyzer.log_db import LogDB
 from log_analyzer.llm_analysis import analyze_log
 
 app = Flask(__name__)
-TEMPLATE = """
+
+BASE_TEMPLATE = """
 <!doctype html>
 <html>
 <head>
@@ -12,11 +13,25 @@ TEMPLATE = """
 </head>
 <body>
 <nav class=\"navbar navbar-dark bg-dark mb-4\">
-  <div class=\"container-fluid\">
+  <div class=\"container-fluid d-flex justify-content-between\">
     <span class=\"navbar-brand mb-0 h1\">Log Dashboard</span>
+    <ul class=\"navbar-nav flex-row gap-3\">
+      <li class=\"nav-item\"><a href=\"{{ url_for('logs_page') }}\" class=\"nav-link {% if menu=='logs' %}active text-white{% else %}text-secondary{% endif %}\">Logs</a></li>
+      <li class=\"nav-item\"><a href=\"{{ url_for('analyzed_page') }}\" class=\"nav-link {% if menu=='analyzed' %}active text-white{% else %}text-secondary{% endif %}\">Analisados</a></li>
+    </ul>
   </div>
 </nav>
 <div class=\"container my-4\">
+{% block content %}{% endblock %}
+</div>
+<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js\"></script>
+</body>
+</html>
+"""
+
+LOGS_TEMPLATE = """
+{% extends base %}
+{% block content %}
 <h2 class=\"mb-4\">Eventos Recentes</h2>
 <div class=\"d-flex justify-content-between mb-3\">
   <form id=\"filter-form\" class=\"d-flex gap-2\" method=\"get\">
@@ -99,13 +114,51 @@ async function analyzeLog(id) {
 fetchLogs();
 setInterval(fetchLogs, 5000);
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}
+"""
+
+ANALYZED_TEMPLATE = """
+{% extends base %}
+{% block content %}
+<h2 class=\"mb-4\">Logs Analisados</h2>
+<table id=\"analyzed-table\" class=\"table table-striped\">
+<thead>
+<tr><th>ID Original</th><th>Timestamp</th><th>Programa</th><th>Severidade</th><th>Anomalia</th><th>Mensagem</th><th>Resumo</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+<script>
+async function fetchAnalyzed(page=1) {
+  const resp = await fetch('/api/analyzed?page='+page);
+  if (!resp.ok) return;
+  const data = await resp.json();
+  const tbody = document.querySelector('#analyzed-table tbody');
+  tbody.innerHTML = '';
+  for (const row of data.logs) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${row[0]}</td>
+        <td>${row[1]}</td>
+        <td>${row[3]}</td>
+        <td>${row[6]}</td>
+        <td>${row[7].toFixed(2)}</td>
+        <td>${row[4]}</td>
+        <td>${row[10]}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+fetchAnalyzed();
+</script>
+{% endblock %}
 """
 
 @app.route('/')
 def index():
+    return redirect(url_for('logs_page'))
+
+
+@app.route('/logs')
+def logs_page():
     page = int(request.args.get('page', 1))
     severity = request.args.get('severity')
     program = request.args.get('program')
@@ -114,13 +167,34 @@ def index():
     db.close()
     severity_colors = {'INFO': 'text-info', 'WARNING': 'text-warning', 'ERROR': 'text-danger'}
     return render_template_string(
-        TEMPLATE,
+        LOGS_TEMPLATE,
+        base=BASE_TEMPLATE,
         logs=logs,
         severity_colors=severity_colors,
         page=page,
         severity=severity,
         program=program,
+        menu='logs'
     )
+
+
+@app.route('/analyzed')
+def analyzed_page():
+    return render_template_string(
+        ANALYZED_TEMPLATE,
+        base=BASE_TEMPLATE,
+        menu='analyzed'
+    )
+
+
+@app.route('/api/analyzed')
+def api_analyzed():
+    limit = int(request.args.get('limit', 100))
+    page = int(request.args.get('page', 1))
+    db = LogDB()
+    logs = list(db.fetch_analyzed_logs(limit=limit, page=page))
+    db.close()
+    return jsonify({'logs': logs})
 
 
 @app.route('/api/logs')
