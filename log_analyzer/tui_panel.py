@@ -27,7 +27,7 @@ def display_loop(refresh: int = 2):
             for row in db.fetch_logs(limit=10):
                 log_id, ts, host, msg, category, severity, anomaly_score, mal = row
                 tag = "*" if mal else ""
-                logs_table.add_row(str(log_id), ts, host, severity + tag, f"{anomaly_score:.2f}", msg)
+                logs_table.add_row(str(log_id), str(ts), host, severity + tag, f"{anomaly_score:.2f}", msg)
             console.print(logs_table)
             sleep(refresh)
     finally:

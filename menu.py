@@ -18,14 +18,24 @@ def handle_sigint(signum, frame):
 signal.signal(signal.SIGINT, handle_sigint)
 
 
-def iniciar(nome: str, modulo: str) -> None:
+def iniciar(nome: str, modulo: str, quiet: bool = False) -> None:
     """Inicia um modulo Python se nao estiver rodando."""
     proc = processes.get(nome)
     if proc and proc.poll() is None:
         print(f"{nome} ja esta em execucao.")
         return
-    print(f"Iniciando {nome}...")
-    processes[nome] = subprocess.Popen([sys.executable, "-m", modulo])
+    if not quiet:
+        print(f"Iniciando {nome}...")
+    stdout = subprocess.DEVNULL if quiet else None
+    stderr = subprocess.DEVNULL if quiet else None
+    processes[nome] = subprocess.Popen(
+        [sys.executable, "-m", modulo], stdout=stdout, stderr=stderr
+    )
+
+
+def iniciar_web() -> None:
+    """Inicia o painel web de forma silenciosa."""
+    iniciar("painel_web", "log_analyzer.web_panel", quiet=True)
 
 
 def finalizar(nome: str) -> None:
@@ -46,7 +56,7 @@ def menu() -> None:
         "2": (finalizar, "coletor"),
         "3": (iniciar, "painel_tui", "log_analyzer.tui_panel"),
         "4": (finalizar, "painel_tui"),
-        "5": (iniciar, "painel_web", "log_analyzer.web_panel"),
+        "5": (iniciar_web,),
         "6": (finalizar, "painel_web"),
     }
 
