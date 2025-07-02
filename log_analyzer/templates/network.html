@@ -30,12 +30,12 @@
   </div>
 </div>
 <script>
-const LABEL_COLORS = {{ label_colors | tojson }};
+const NET_LABEL_COLORS = {{ label_colors | tojson }};
 const startPage = {{ page }};
 const currentSource = "{{ source or '' }}";
 function labelClass(name) {
   const key = name.toLowerCase();
-  return LABEL_COLORS[key] || '';
+  return NET_LABEL_COLORS[key] || '';
 }
 async function fetchNetwork(page=startPage) {
   const params = new URLSearchParams({page: page, source: currentSource});

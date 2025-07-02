@@ -46,6 +46,7 @@
 <script>
 const SEVERITY_COLORS = {{ severity_colors | tojson }};
 const LABEL_COLORS = {{ label_colors | default({}, true) | tojson }};
+const currentMenu = '{{ menu }}';
 async function fetchStats() {
   const resp = await fetch('/api/stats');
   if (!resp.ok) return;
@@ -54,15 +55,21 @@ async function fetchStats() {
   const nids = document.getElementById('nids-info');
   const attacks = document.getElementById('attack-info');
   const iface = document.getElementById('iface-info');
-  sev.innerHTML = Object.entries(data.severity).map(
-    ([k,v]) => `<span class="${SEVERITY_COLORS[k] || ''} me-2">${k}: ${v}</span>`
-  ).join(' ');
+  sev.innerHTML = '';
+  nids.innerHTML = '';
+  if (currentMenu !== 'network') {
+    sev.innerHTML = Object.entries(data.severity).map(
+      ([k,v]) => `<span class="${SEVERITY_COLORS[k] || ''} me-2">${k}: ${v}</span>`
+    ).join(' ');
+  }
   attacks.textContent = Object.entries(data.attacks).map(
     ([k,v]) => `${k}: ${v}`
   ).join(' ');
-  nids.innerHTML = Object.entries(data.network_labels || {}).map(
-    ([k,v]) => `<span class="${LABEL_COLORS[k.toLowerCase()] || ''} me-2">${k}: ${v}</span>`
-  ).join(' ');
+  if (currentMenu === 'network') {
+    nids.innerHTML = Object.entries(data.network_labels || {}).map(
+      ([k,v]) => `<span class="${LABEL_COLORS[k.toLowerCase()] || ''} me-2">${k}: ${v}</span>`
+    ).join(' ');
+  }
   iface.textContent = `Ativas: ${data.interfaces.active.join(', ')} | Atividade: ${data.interfaces.activity.join(', ')}`;
 }
 
@@ -85,7 +92,6 @@ fetchAlerts();
 setInterval(fetchStats, 5000);
 setInterval(fetchAlerts, 5000);
 const COUNT_KEY = 'counts';
-const currentMenu = '{{ menu }}';
 let lastCounts = JSON.parse(localStorage.getItem(COUNT_KEY) || '{}');
 let countsReady = Object.keys(lastCounts).length > 0;
 
