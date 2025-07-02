@@ -115,8 +115,7 @@ Linhas rotuladas com o cluster `-1` sao tratadas como anomalias.
 ## Analise com modelos LLM
 
 E possivel enviar uma entrada especifica do banco para analise por um modelo
-da **Hugging Face**. Defina `HUGGINGFACE_MODEL` e `DEVICE_TYPE` no `.env` e
-utilize o painel web para acionar a analise ou execute manualmente:
+da **Hugging Face**. Defina `HUGGINGFACE_MODEL`, `DEVICE_TYPE` e `LLM_PROMPT` no `.env`. O texto definido em `LLM_PROMPT` e combinado com informacoes do log (ID, programa, severidade, pontuacao de anomalia e mensagem) para compor o prompt final enviado ao modelo. Utilize o painel web para acionar a analise ou execute manualmente:
 
 ```bash
 python -m log_analyzer.llm_analysis ID_DO_LOG

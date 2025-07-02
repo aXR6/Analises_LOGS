@@ -37,6 +37,12 @@ HUGGINGFACE_MODEL = os.getenv(
 # Tipo de dispositivo para o pipeline do Hugging Face: "cpu" ou "cuda"
 DEVICE_TYPE = os.getenv("DEVICE_TYPE", "cpu")
 
+# Instrucao base para compor o prompt enviado ao modelo de linguagem
+LLM_PROMPT = os.getenv(
+    "LLM_PROMPT",
+    "Analise o log abaixo levando em conta o contexto fornecido e resuma possiveis causas ou acoes recomendadas. Me entregue o texto traduzido para o Portugues do Brasil (PT-BR).",
+)
+
 # Minimum score to treat a log as anomalous. The default value is
 # conservative because the DistilBERT model was trained to separate
 # normal lines from anomalies and may produce high scores for benign
