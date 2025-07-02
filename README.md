@@ -28,7 +28,7 @@ Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco PostgreSQL
 ## Requisitos
 - Python 3.8 ou superior.
 - Dependências listadas em `requirements.txt` (inclui `bitsandbytes` para modelos quantizados).
-- Uma instância do **Elasticsearch** acessível no endereço configurado em `ES_URL`.
+- Uma instância do **Elasticsearch** acessível em `ES_URL` (pode ser iniciada com `docker compose up -d`).
 - Banco PostgreSQL disponível para receber as tabelas definidas em `schema.sql`.
 
 ## Instalação
@@ -40,7 +40,7 @@ Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco PostgreSQL
    ```bash
    pip install -r requirements.txt
    ```
-3. Copie `.env.example` para `.env` e preencha as credenciais do banco e o endereço do Elasticsearch.
+3. Copie `.env.example` para `.env` e preencha as credenciais do banco e do Elasticsearch (caso utilize uma instância externa).
 4. Crie o banco de dados e aplique o script `schema.sql`.
 5. Ajuste o `rsyslog` conforme [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) para registrar os eventos em `rsyslog.log` (ou caminho definido em `LOG_FILE`).
 
@@ -104,10 +104,10 @@ print(result)  # ex: {'label': 'Scanning', 'score': 0.87}
 O dispositivo de rede utilizado na captura é configurado em `NET_INTERFACE` e é possível enviar eventos para análise utilizando o mesmo modelo de logs, armazenando o resultado em `network_analysis` e `analyzed_network_events`.
 
 ## Integração com Graylog
-O diretório `Graylog` contém um `docker-compose.yml` com todos os serviços necessários para executar o Graylog (MongoDB, Elasticsearch e PostgreSQL). As credenciais do banco são lidas do arquivo `.env` do projeto. Para iniciar execute:
+O projeto traz um `docker-compose.yml` unificado que inicia o **Elasticsearch** e o ambiente do Graylog (MongoDB e PostgreSQL). As credenciais do banco são lidas do arquivo `.env`. Para iniciar execute:
 
 ```bash
-docker compose -f Graylog/docker-compose.yml up -d
+docker compose up -d
 ```
 
 A interface ficará disponível em `http://localhost:9000` e os parâmetros adicionais estão definidos em `Graylog/graylog.conf`.
