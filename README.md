@@ -1,172 +1,103 @@
-# Analise de Logs com rsyslog
+# Análise de Logs com rsyslog
 
-Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco de dados
-PostgreSQL e fornece dois paineis de monitoramento. As mensagens tambem sao
-indexadas no **Elasticsearch** para buscas rapidas. A classificacao de severidade
-dos logs utiliza o modelo indicado na variavel `SEVERITY_MODEL` definida no
-arquivo `.env`. Esse modelo organiza os eventos em **ERROR**, **WARNING** e
-**INFO**, conforme a documentacao do repositorio escolhido. A pontuacao de
-anomalia tambem e calculada a partir do modelo configurado em `ANOMALY_MODEL`.
+Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco PostgreSQL e disponibiliza dois painéis de monitoramento. As mensagens também são indexadas no **Elasticsearch** para consultas rápidas. A severidade e a pontuação de anomalia dos eventos são classificadas por modelos configuráveis, permitindo identificar comportamentos suspeitos de maneira automática.
 
-Painéis disponíveis:
+## Sumário
+- [Funcionalidades](#funcionalidades)
+- [Requisitos](#requisitos)
+- [Instalação](#instala%c3%a7%c3%a3o)
+- [Uso](#uso)
+- [Personalizando modelos](#personalizando-modelos)
+- [Estrutura de diretórios](#estrutura-de-diret%c3%b3rios)
+- [Alertas](#alertas)
+- [Detecção de Anomalias Semânticas](#detec%c3%a7%c3%a3o-de-anomalias-sem%c3%a2nticas)
+- [Análise com modelos LLM](#an%c3%a1lise-com-modelos-llm)
+- [Monitoramento de Tráfego de Rede](#monitoramento-de-tr%c3%a1fego-de-rede)
 
-- **Painel de terminal** utilizando a biblioteca `rich`.
- - **Painel web** simples utilizando Flask.
-
-Logs contendo termos como `denied`, `attack` ou `malware` geram alertas imediatos
-exibidos no terminal e sao marcados como maliciosos no banco de dados.
-
-Para configuracoes de alto desempenho do `rsyslog` em ambientes Debian 12
-consulte [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md).
+## Funcionalidades
+- Coleta de logs via `rsyslog` e armazenamento em PostgreSQL.
+- Indexação das mensagens no Elasticsearch.
+- Painel de terminal utilizando a biblioteca `rich`.
+- Painel web simples com Flask.
+- Sistema de alertas para termos suspeitos (*denied*, *attack*, *malware*).
+- Classificação de severidade e detecção de anomalias através de modelos definidos no `.env`.
+- Análise opcional de entradas com modelos de linguagem (LLM) da Hugging Face.
+- Monitoramento de tráfego de rede baseado em modelo NIDS.
 
 ## Requisitos
+- Python 3.8 ou superior.
+- Dependências listadas em `requirements.txt` (inclui `bitsandbytes` para modelos quantizados).
+- Uma instância do **Elasticsearch** acessível no endereço configurado em `ES_URL`.
+- Banco PostgreSQL disponível para receber as tabelas definidas em `schema.sql`.
 
-- Python 3.8+
-- Dependências listadas em `requirements.txt` (inclui `bitsandbytes` para modelos quantizados)
-- Uma instância do **Elasticsearch** acessível pelo endereço definido em `ES_URL`
-
-## Instalacao
-
-```bash
-pip install -r requirements.txt
-```
-
-Copie o arquivo `.env.example` para `.env` e preencha as credenciais do banco.
-Todas as informações sensíveis devem ficar apenas nesse arquivo, já que o
-codigo fonte não define mais valores padrão.
-Informe também o endereço do servidor Elasticsearch na variável `ES_URL` para habilitar as buscas.
-
-## Personalizando modelos
-
-Os nomes dos modelos carregados podem ser alterados livremente por variáveis de
-ambiente no arquivo `.env`. Os parâmetros `SEVERITY_MODEL` e `ANOMALY_MODEL`
-definem, respectivamente, o classificador de severidade e o detector de
-anomalias. Também é possível ajustar o `ANOMALY_THRESHOLD` para controlar em
-que pontuação uma linha é marcada como suspeita.
+## Instalação
+1. Clone o repositório e acesse a pasta do projeto:
+   ```bash
+   git clone <repo> && cd Analises_LOGS
+   ```
+2. Instale as dependências:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Copie `.env.example` para `.env` e preencha as credenciais do banco e o endereço do Elasticsearch.
+4. Crie o banco de dados e aplique o script `schema.sql`.
+5. Ajuste o `rsyslog` conforme [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) para registrar os eventos em `rsyslog.log` (ou caminho definido em `LOG_FILE`).
 
 ## Uso
-
-1. Configure o `rsyslog` para gravar seus eventos em `rsyslog.log` (ou no caminho
-   definido na variavel `LOG_FILE` do `.env`) na raiz do
-    projeto. Para uma configuracao mais eficiente, consulte o arquivo
-    [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) e salve o
-    conteudo sugerido em `/etc/rsyslog.d/50-log_analyzer.conf`. Certifique-se de
-    definir o template antes da `action` para evitar erros de configuracao.
-
-   Caso prefira uma configuracao minima, o seguinte exemplo tambem funciona:
-
+1. Inicie o coletor que lê continuamente o arquivo de log e popula o banco:
+   ```bash
+   python -m log_analyzer.collector
    ```
-   *.* @@127.0.0.1:514
+2. Para visualizar os registros no terminal:
+   ```bash
+   python -m log_analyzer.tui_panel
    ```
+   Alertas críticos são destacados em vermelho e as atualizações ocorrem em tempo real.
+3. Para acessar pelo navegador:
+   ```bash
+   python -m log_analyzer.web_panel
+   ```
+   A aplicação ficará disponível em `http://localhost:5000` com paginação de 100 registros, filtros por severidade e busca textual utilizando o Elasticsearch. O nome do programa é exibido e pode ser usado como filtro ao clicar. Quando novos registros chegam, um balão "+1" indica atividade recente.
+4. Opcionalmente execute `python menu.py` para controlar todas as funções a partir de um menu interativo (incluindo troca entre **CPU** e **GPU** e seleção da interface de rede).
 
-   Depois de ajustar o `rsyslog`, utilize o utilitario `logger` ou suas
-   aplicacoes para gerar eventos.
+## Personalizando modelos
+Os nomes dos modelos podem ser alterados através das variáveis no `.env`. Utilize `SEVERITY_MODEL` e `ANOMALY_MODEL` para definir classificadores e `ANOMALY_THRESHOLD` para ajustar o ponto de corte. Outros modelos, como `SEMANTIC_MODEL`, `HUGGINGFACE_MODEL` e `NIDS_MODEL`, seguem a mesma lógica e permitem trocar facilmente a inteligência utilizada.
 
-2. Inicie o coletor que ira ler continuamente o arquivo de log e popular o banco:
-
-```bash
-python -m log_analyzer.collector
-```
-
-3. Para visualizar no terminal:
-
-```bash
-python -m log_analyzer.tui_panel
-```
-
-4. Para acessar pelo navegador:
-
-```bash
-python -m log_analyzer.web_panel
-```
-A aplicacao web ficará disponivel em `http://localhost:5000`. A listagem possui
-paginacao de 100 registros e filtros por severidade. O nome do software
-responsavel por cada evento tambem é exibido e pode ser utilizado como filtro ao
-clicar sobre ele.
-Consultas por texto utilizam o Elasticsearch para maior desempenho.
-Quando novos registros chegam em qualquer aba, um pequeno balão "+1" é exibido
-ao lado da guia correspondente para indicar atividade recente.
-Como opcao, execute `python menu.py` para gerenciar todas as funcionalidades a partir de um menu interativo.
-O menu tambem permite alternar entre execucao em **CPU** ou **GPU** para a
-analise com modelos LLM.
-Tambem e possivel selecionar a interface de rede utilizada pelo monitoramento.
-
-## Estrutura de diretorios
-
-- `log_analyzer/` - codigo fonte principal
-- `rsyslog.log` - arquivo lido pelo coletor (configuravel via `.env`)
-- `schema.sql` - definicao da tabela utilizada no PostgreSQL
-- `.env.example` - arquivo de exemplo com variaveis de configuracao do banco
-- `logs` (indice Elasticsearch) - armazena eventos indexados para busca
+## Estrutura de diretórios
+- `log_analyzer/` – código fonte principal.
+- `rsyslog.log` – arquivo monitorado pelo coletor (configurável via `.env`).
+- `schema.sql` – definição das tabelas PostgreSQL.
+- `.env.example` – modelo de configuração do ambiente.
+- `logs` – índice Elasticsearch contendo os eventos processados.
 
 ## Alertas
+Linhas contendo termos suspeitos são marcadas como **MALICIOUS** e geram alerta imediato no terminal. O tipo de ataque identificado fica visível no painel web, juntamente com as ocorrências mais recentes. Mensagens cujo `anomaly_score` ultrapassa o valor de `ANOMALY_THRESHOLD` também são consideradas suspeitas.
 
-Linhas que contenham termos como `denied`, `attack` ou `malware` sao
-classificadas como **MALICIOUS** e geram uma mensagem de alerta no terminal.
-Entradas marcadas dessa forma sao categorizadas por tipo de ataque (por
-exemplo `ssh-brute-force` ou `unauthorized-access`) e o resultado fica visivel
-no painel web. As ocorrencias mais recentes tambem aparecem em um aviso no topo do painel, exibindo IP de origem, destino e tipo do ataque.
-Adicionalmente, entradas cujo `anomaly_score` ultrapassa o valor definido em
-`ANOMALY_THRESHOLD` tambem sao tratadas como suspeitas.
-
-## Detecao de Anomalias Semanticas
-
-Para detectar padroes incomuns no texto dos logs e possivel executar o modulo
-`log_analyzer.semantic_anomaly`. O utilitario gera embeddings utilizando o
-modelo configurado em `SEMANTIC_MODEL` da biblioteca *sentence-transformers* e
-aplica o algoritmo DBSCAN para identificar mensagens atipicas.
-
+## Detecção de Anomalias Semânticas
+Para encontrar padrões incomuns no texto dos logs utilize:
 ```bash
 python -m log_analyzer.semantic_anomaly caminho/para/arquivo.log
 ```
+Entradas rotuladas com o cluster `-1` serão tratadas como anomalias.
 
-Linhas rotuladas com o cluster `-1` sao tratadas como anomalias.
-
-## Analise com modelos LLM
-
-E possivel enviar uma entrada especifica do banco para analise por um modelo
-da **Hugging Face**. Defina `HUGGINGFACE_MODEL`, `DEVICE_TYPE` e `LLM_PROMPT` no `.env`. O texto definido em `LLM_PROMPT` e combinado com informacoes do log (ID, programa, severidade, pontuacao de anomalia e mensagem) para compor o prompt final enviado ao modelo. Utilize o painel web para acionar a analise ou execute manualmente:
-
+## Análise com modelos LLM
+É possível enviar um registro específico para análise por um modelo da Hugging Face. Defina `HUGGINGFACE_MODEL`, `DEVICE_TYPE` e `LLM_PROMPT` no `.env` e execute:
 ```bash
 python -m log_analyzer.llm_analysis ID_DO_LOG
 ```
-O resultado da analise e armazenado na tabela `log_analysis`, ligado ao
-registro original. Alem disso, o log analisado juntamente com o resumo gerado
-eh copiado para a tabela `analyzed_logs` para facilitar consultas futuras.
+O resultado é gravado nas tabelas `log_analysis` e `analyzed_logs` e pode ser consultado pelo painel web.
 
 ## Monitoramento de Tráfego de Rede
-
-Um monitor adicional utiliza o modelo definido na variavel `NIDS_MODEL` para
-classificar eventos de rede como ataques DoS, Port Scan, Brute Force ou
-PingScan. As entradas são registradas na tabela `network_events` com o nome do
-modulo responsavel e podem ser acompanhadas pela aba "Trafego de rede" do painel
-web. A listagem possui paginacao e permite filtrar pelo modulo ao clicar sobre
-ele.
-
-Eventos de rede também podem ser enviados para análise utilizando o mesmo
-modelo configurado para os logs. O resultado fica gravado nas tabelas
-`network_analysis` e `analyzed_network_events`, aparecendo na aba "Analisados"
-em seção separada dos logs.
-
-Se o repositório do modelo não incluir arquivos de tokenizer, defina a variável
-de ambiente `NIDS_TOKENIZER` com o nome de um tokenizer compatível, por exemplo
-`bert-base-uncased`.
-O dispositivo de rede utilizado na captura e definido em `NET_INTERFACE`.
-
-A integração básica pode ser feita com a biblioteca `transformers`:
-
+Um monitor adicional utiliza o modelo definido em `NIDS_MODEL` para classificar eventos de rede (DoS, Port Scan, Brute Force, etc.). As entradas ficam registradas na tabela `network_events` e podem ser acompanhadas na aba "Tráfego de rede" do painel web. A integração básica pode ser feita com a biblioteca `transformers`:
 ```python
 from transformers import pipeline
-
-# Exemplo: classificacao utilizando o modelo informado em `NIDS_MODEL`
 import os
 
 classifier = pipeline("text-classification", model=os.getenv("NIDS_MODEL"))
-
 log = {
     # características do fluxo IoT ou rede transformadas em JSON ou vetores
 }
-
 result = classifier(log)
 print(result)  # ex: {'label': 'Scanning', 'score': 0.87}
 ```
+O dispositivo de rede utilizado na captura é configurado em `NET_INTERFACE` e é possível enviar eventos para análise utilizando o mesmo modelo de logs, armazenando o resultado em `network_analysis` e `analyzed_network_events`.
