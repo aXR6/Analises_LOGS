@@ -1,7 +1,8 @@
 # Analise de Logs com rsyslog
 
 Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco de dados
-PostgreSQL e fornece dois paineis de monitoramento. A classificacao de severidade
+PostgreSQL e fornece dois paineis de monitoramento. As mensagens tambem sao
+indexadas no **Elasticsearch** para buscas rapidas. A classificacao de severidade
 dos logs utiliza o modelo indicado na variavel `SEVERITY_MODEL` definida no
 arquivo `.env`. Esse modelo organiza os eventos em **ERROR**, **WARNING** e
 **INFO**, conforme a documentacao do repositorio escolhido. A pontuacao de
@@ -22,6 +23,7 @@ consulte [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md).
 
 - Python 3.8+
 - Dependências listadas em `requirements.txt` (inclui `bitsandbytes` para modelos quantizados)
+- Uma instância do **Elasticsearch** acessível pelo endereço definido em `ES_URL`
 
 ## Instalacao
 
@@ -32,6 +34,7 @@ pip install -r requirements.txt
 Copie o arquivo `.env.example` para `.env` e preencha as credenciais do banco.
 Todas as informações sensíveis devem ficar apenas nesse arquivo, já que o
 codigo fonte não define mais valores padrão.
+Informe também o endereço do servidor Elasticsearch na variável `ES_URL` para habilitar as buscas.
 
 ## Personalizando modelos
 
@@ -80,6 +83,7 @@ A aplicacao web ficará disponivel em `http://localhost:5000`. A listagem possui
 paginacao de 100 registros e filtros por severidade. O nome do software
 responsavel por cada evento tambem é exibido e pode ser utilizado como filtro ao
 clicar sobre ele.
+Consultas por texto utilizam o Elasticsearch para maior desempenho.
 Quando novos registros chegam em qualquer aba, um pequeno balão "+1" é exibido
 ao lado da guia correspondente para indicar atividade recente.
 Como opcao, execute `python menu.py` para gerenciar todas as funcionalidades a partir de um menu interativo.
@@ -93,6 +97,7 @@ Tambem e possivel selecionar a interface de rede utilizada pelo monitoramento.
 - `rsyslog.log` - arquivo lido pelo coletor (configuravel via `.env`)
 - `schema.sql` - definicao da tabela utilizada no PostgreSQL
 - `.env.example` - arquivo de exemplo com variaveis de configuracao do banco
+- `logs` (indice Elasticsearch) - armazena eventos indexados para busca
 
 ## Alertas
 
