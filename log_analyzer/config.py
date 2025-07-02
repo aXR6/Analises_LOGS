@@ -25,6 +25,7 @@ ANOMALY_MODEL = os.getenv(
 NIDS_MODEL = os.getenv(
     "NIDS_MODEL", "caffeinatedcherrychic/mistral-based-NIDS"
 )
+NIDS_TOKENIZER = os.getenv("NIDS_TOKENIZER")
 NET_LOG_FILE = Path(os.getenv("NET_LOG_FILE", "network.log"))
 
 # Model used for semantic anomaly detection via SentenceTransformers

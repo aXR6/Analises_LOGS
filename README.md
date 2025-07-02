@@ -131,3 +131,7 @@ para classificar eventos de rede como ataques DoS, Port Scan, Brute Force ou
 PingScan. Essa versao quantizada requer a biblioteca `bitsandbytes`. As entradas
 sao registradas na tabela `network_events` e podem ser acompanhadas pela aba
 "Trafego de rede" do painel web.
+
+Se o repositório do modelo não incluir arquivos de tokenizer, defina a variável
+de ambiente `NIDS_TOKENIZER` com o nome de um tokenizer compatível, por exemplo
+`bert-base-uncased`.

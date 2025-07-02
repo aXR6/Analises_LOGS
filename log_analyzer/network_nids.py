@@ -3,7 +3,12 @@ from pathlib import Path
 from transformers import pipeline
 
 from log_analyzer.log_db import LogDB
-from log_analyzer.config import NIDS_MODEL, NET_LOG_FILE, DEVICE_TYPE
+from log_analyzer.config import (
+    NIDS_MODEL,
+    NET_LOG_FILE,
+    DEVICE_TYPE,
+    NIDS_TOKENIZER,
+)
 
 
 def follow(path: Path):
@@ -20,7 +25,13 @@ def follow(path: Path):
 
 def main():
     device = 0 if DEVICE_TYPE.lower() == "cuda" else -1
-    clf = pipeline("text-classification", model=NIDS_MODEL, device=device)
+    tokenizer = NIDS_TOKENIZER or NIDS_MODEL
+    clf = pipeline(
+        "text-classification",
+        model=NIDS_MODEL,
+        tokenizer=tokenizer,
+        device=device,
+    )
     db = LogDB()
     try:
         for line in follow(NET_LOG_FILE):
