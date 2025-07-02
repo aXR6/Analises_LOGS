@@ -13,12 +13,12 @@
     <div class="d-flex justify-content-between align-items-center">
       <span class="navbar-brand mb-0 h1">Log Dashboard</span>
       <ul class="navbar-nav flex-row gap-3">
-        <li class="nav-item"><a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active text-white{% else %}text-secondary{% endif %}">Logs</a></li>
-        <li class="nav-item"><a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active text-white{% else %}text-secondary{% endif %}">Analisados</a></li>
-        <li class="nav-item"><a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active text-white{% else %}text-secondary{% endif %}">Trafego de rede</a></li>
+        <li class="nav-item"><a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active{% endif %}">Logs</a></li>
+        <li class="nav-item"><a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active{% endif %}">Analisados</a></li>
+        <li class="nav-item"><a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active{% endif %}">Trafego de rede</a></li>
       </ul>
     </div>
-    <div id="toolbar" class="d-flex flex-wrap gap-3 small mt-2">
+    <div id="toolbar" class="d-flex flex-wrap gap-3 small mt-2 p-2 rounded bg-secondary text-light">
       <span id="severity-info"></span>
       <span id="attack-info"></span>
       <span id="alert-info" class="text-danger"></span>
