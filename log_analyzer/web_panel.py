@@ -187,6 +187,19 @@ def api_alerts():
     return jsonify({'alerts': alerts})
 
 
+@app.route('/api/counts')
+def api_counts():
+    """Return total counts for logs, analyzed logs and network events."""
+    db = LogDB()
+    counts = {
+        'logs': db.count_logs(),
+        'analyzed': db.count_analyzed_logs(),
+        'network': db.count_network_events(),
+    }
+    db.close()
+    return jsonify(counts)
+
+
 @app.route('/api/analyze/<int:log_id>')
 def api_analyze(log_id: int):
     result = analyze_log(log_id)

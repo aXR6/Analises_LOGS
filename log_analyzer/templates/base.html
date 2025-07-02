@@ -13,9 +13,18 @@
     <div class="d-flex justify-content-between align-items-center">
       <span class="navbar-brand mb-0 h1">Log Dashboard</span>
       <ul class="navbar-nav flex-row gap-3">
-        <li class="nav-item"><a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active{% endif %}">Logs</a></li>
-        <li class="nav-item"><a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active{% endif %}">Analisados</a></li>
-        <li class="nav-item"><a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active{% endif %}">Trafego de rede</a></li>
+        <li class="nav-item position-relative">
+          <a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active{% endif %}">Logs</a>
+          <span id="badge-logs" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+        </li>
+        <li class="nav-item position-relative">
+          <a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active{% endif %}">Analisados</a>
+          <span id="badge-analyzed" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+        </li>
+        <li class="nav-item position-relative">
+          <a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active{% endif %}">Trafego de rede</a>
+          <span id="badge-network" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+        </li>
       </ul>
     </div>
     <div id="toolbar" class="d-flex flex-wrap gap-3 small mt-2 p-2 rounded bg-secondary text-light">
@@ -69,6 +78,37 @@ fetchStats();
 fetchAlerts();
 setInterval(fetchStats, 5000);
 setInterval(fetchAlerts, 5000);
+const COUNT_KEY = 'counts';
+const currentMenu = '{{ menu }}';
+let lastCounts = JSON.parse(localStorage.getItem(COUNT_KEY) || '{}');
+let countsReady = Object.keys(lastCounts).length > 0;
+
+async function fetchCounts() {
+  const resp = await fetch('/api/counts');
+  if (!resp.ok) return;
+  const data = await resp.json();
+  if (!countsReady) {
+    lastCounts = data;
+    countsReady = true;
+    localStorage.setItem(COUNT_KEY, JSON.stringify(lastCounts));
+    return;
+  }
+  for (const key of ['logs','analyzed','network']) {
+    const diff = data[key] - (lastCounts[key] || 0);
+    const badge = document.getElementById('badge-' + key);
+    if (diff > 0 && currentMenu !== key) {
+      badge.textContent = '+' + diff;
+      badge.classList.remove('d-none');
+    } else if (currentMenu === key) {
+      lastCounts[key] = data[key];
+      badge.classList.add('d-none');
+    }
+  }
+  localStorage.setItem(COUNT_KEY, JSON.stringify(lastCounts));
+}
+
+fetchCounts();
+setInterval(fetchCounts, 5000);
 const THEME_KEY = 'theme';
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-bs-theme', theme);
