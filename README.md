@@ -138,6 +138,11 @@ modulo responsavel e podem ser acompanhadas pela aba "Trafego de rede" do painel
 web. A listagem possui paginacao e permite filtrar pelo modulo ao clicar sobre
 ele.
 
+Eventos de rede também podem ser enviados para análise utilizando o mesmo
+modelo configurado para os logs. O resultado fica gravado nas tabelas
+`network_analysis` e `analyzed_network_events`, aparecendo na aba "Analisados"
+em seção separada dos logs.
+
 Se o repositório do modelo não incluir arquivos de tokenizer, defina a variável
 de ambiente `NIDS_TOKENIZER` com o nome de um tokenizer compatível, por exemplo
 `bert-base-uncased`.

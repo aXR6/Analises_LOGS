@@ -72,6 +72,27 @@ class LogDB:
         cur.execute(
             "ALTER TABLE network_events ADD COLUMN IF NOT EXISTS source TEXT"
         )
+        cur.execute(
+            """CREATE TABLE IF NOT EXISTS network_analysis (
+                    id SERIAL PRIMARY KEY,
+                    event_id INTEGER REFERENCES network_events(id),
+                    analysis TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
+        cur.execute(
+            """CREATE TABLE IF NOT EXISTS analyzed_network_events (
+                    id SERIAL PRIMARY KEY,
+                    event_id INTEGER UNIQUE REFERENCES network_events(id),
+                    timestamp TIMESTAMP,
+                    event TEXT,
+                    label TEXT,
+                    score REAL,
+                    source TEXT,
+                    analysis TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
         cur.close()
         self.conn.commit()
 
@@ -307,6 +328,75 @@ class LogDB:
         rows = cur.fetchall()
         cur.close()
         return rows
+
+    def fetch_network_event(self, event_id: int) -> tuple[Any, ...] | None:
+        cur = self.conn.cursor()
+        cur.execute(
+            "SELECT id, timestamp, event, label, score, source FROM network_events WHERE id = %s",
+            (event_id,),
+        )
+        row = cur.fetchone()
+        cur.close()
+        return row
+
+    def insert_network_analysis(self, event_id: int, analysis: str) -> None:
+        cur = self.conn.cursor()
+        cur.execute(
+            "INSERT INTO network_analysis (event_id, analysis) VALUES (%s, %s)",
+            (event_id, analysis),
+        )
+        cur.close()
+        self.conn.commit()
+
+    def insert_analyzed_network_event(self, event_id: int, analysis: str) -> None:
+        cur = self.conn.cursor()
+        cur.execute(
+            "SELECT timestamp, event, label, score, source FROM network_events WHERE id = %s",
+            (event_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            cur.close()
+            return
+        cur.execute(
+            """
+            INSERT INTO analyzed_network_events (event_id, timestamp, event, label, score, source, analysis)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (event_id) DO UPDATE SET analysis = EXCLUDED.analysis,
+                created_at = CURRENT_TIMESTAMP
+            """,
+            (event_id, *row, analysis),
+        )
+        cur.close()
+        self.conn.commit()
+
+    def fetch_analyzed_network_events(
+        self, limit: int = 100, page: int | None = None
+    ) -> Iterable[Tuple[Any, ...]]:
+        query = (
+            "SELECT event_id, timestamp, event, label, score, source, analysis, created_at"
+            " FROM analyzed_network_events ORDER BY created_at DESC"
+        )
+        params: list[Any] = []
+        if page is not None:
+            offset = (page - 1) * limit
+            query += " LIMIT %s OFFSET %s"
+            params.extend([limit, offset])
+        else:
+            query += " LIMIT %s"
+            params.append(limit)
+        cur = self.conn.cursor()
+        cur.execute(query, tuple(params))
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+
+    def count_analyzed_network_events(self) -> int:
+        cur = self.conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM analyzed_network_events")
+        count = cur.fetchone()[0]
+        cur.close()
+        return count
 
     def list_network_sources(self) -> Iterable[str]:
         cur = self.conn.cursor()
