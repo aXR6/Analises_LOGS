@@ -57,7 +57,7 @@ Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco PostgreSQL
    ```bash
    python -m log_analyzer.web_panel
    ```
-   A aplicação ficará disponível em `http://localhost:5000` com paginação de 100 registros, filtros por severidade e busca textual utilizando o Elasticsearch. O nome do programa é exibido e pode ser usado como filtro ao clicar. Quando novos registros chegam, um balão "+1" indica atividade recente.
+   A aplicação ficará disponível em `http://localhost:5000` com paginação de 100 registros, filtros por severidade e busca textual utilizando o Elasticsearch. O nome do programa é exibido e pode ser usado como filtro ao clicar. Quando novos registros chegam, um balão "+1" indica atividade recente. A barra superior mostra os totais por severidade e, na aba "Tráfego de rede", exibe também a contagem de eventos classificados pelo NIDS.
 4. Opcionalmente execute `python menu.py` para controlar todas as funções a partir de um menu interativo (incluindo troca entre **CPU** e **GPU** e seleção da interface de rede).
 
 ## Personalizando modelos

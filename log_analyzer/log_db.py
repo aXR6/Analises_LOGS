@@ -477,5 +477,13 @@ class LogDB:
         cur.close()
         return count
 
+    def count_network_by_label(self) -> Iterable[Tuple[str, int]]:
+        """Return number of network events grouped by label."""
+        cur = self.conn.cursor()
+        cur.execute("SELECT label, COUNT(*) FROM network_events GROUP BY label")
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+
     def close(self) -> None:
         self.conn.close()

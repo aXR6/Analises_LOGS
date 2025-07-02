@@ -172,13 +172,15 @@ def api_stats():
     db = LogDB()
     severity_counts = dict(db.count_by_severity())
     malicious_msgs = list(db.fetch_recent_malicious(limit=200))
+    label_counts = dict(db.count_network_by_label())
     db.close()
     attacks = count_attack_types(malicious_msgs)
     active, activity = get_network_info()
     return jsonify({
         'severity': severity_counts,
         'attacks': attacks,
-        'interfaces': {'active': active, 'activity': activity}
+        'interfaces': {'active': active, 'activity': activity},
+        'network_labels': label_counts
     })
 
 
