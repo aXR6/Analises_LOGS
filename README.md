@@ -126,12 +126,27 @@ eh copiado para a tabela `analyzed_logs` para facilitar consultas futuras.
 
 ## Monitoramento de Tráfego de Rede
 
-Um monitor adicional utiliza o modelo **caffeinatedcherrychic/mistral-based-NIDS**
+Um monitor adicional utiliza o modelo **SilverDragon9/Sniffer.AI**
 para classificar eventos de rede como ataques DoS, Port Scan, Brute Force ou
-PingScan. Essa versao quantizada requer a biblioteca `bitsandbytes`. As entradas
-sao registradas na tabela `network_events` e podem ser acompanhadas pela aba
-"Trafego de rede" do painel web.
+PingScan. As entradas são registradas na tabela `network_events` e podem ser
+acompanhadas pela aba "Trafego de rede" do painel web.
 
 Se o repositório do modelo não incluir arquivos de tokenizer, defina a variável
 de ambiente `NIDS_TOKENIZER` com o nome de um tokenizer compatível, por exemplo
 `bert-base-uncased`.
+
+A integração básica pode ser feita com a biblioteca `transformers`:
+
+```python
+from transformers import pipeline
+
+# Exemplo: classificação com Sniffer.AI
+classifier = pipeline("text-classification", model="SilverDragon9/Sniffer.AI")
+
+log = {
+    # características do fluxo IoT ou rede transformadas em JSON ou vetores
+}
+
+result = classifier(log)
+print(result)  # ex: {'label': 'Scanning', 'score': 0.87}
+```
