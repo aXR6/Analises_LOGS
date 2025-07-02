@@ -111,3 +111,16 @@ docker compose up -d
 ```
 
 A interface ficará disponível em `http://localhost:9000` e os parâmetros adicionais estão definidos em `Graylog/graylog.conf`.
+
+Caso o contêiner reinicie com erro de permissão ao persistir o **Node ID** do
+Graylog, defina `GRAYLOG_NODE_ID_FILE` para um local gravável. Um exemplo é
+`/usr/share/graylog/data/config/node-id`, que já possui permissões adequadas:
+
+```yaml
+graylog:
+  environment:
+    - GRAYLOG_NODE_ID_FILE=/usr/share/graylog/data/config/node-id
+```
+
+Com esse ajuste o arquivo é criado corretamente e o serviço passa a iniciar
+normalmente.
