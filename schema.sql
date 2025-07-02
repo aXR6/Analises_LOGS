@@ -38,6 +38,7 @@ CREATE TABLE network_events (
     id SERIAL PRIMARY KEY,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     event TEXT,
+    source TEXT,
     label TEXT,
     score REAL
 );

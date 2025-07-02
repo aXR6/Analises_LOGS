@@ -33,12 +33,13 @@ def main():
         device=device,
     )
     db = LogDB()
+    module = "network_nids"
     try:
         for line in follow(NET_LOG_FILE):
             result = clf(line)[0]
             label = result.get("label", "")
             score = float(result.get("score", 0.0))
-            db.insert_network_event(line, label, score)
+            db.insert_network_event(line, label, score, module)
             if label.lower() != "normal":
                 print(f"ALERTA NIDS: {label} - {line}")
     finally:
