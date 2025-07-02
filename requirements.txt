@@ -7,3 +7,4 @@ python-dotenv
 psycopg2-binary
 sentence-transformers
 scikit-learn
+bitsandbytes

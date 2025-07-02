@@ -22,7 +22,7 @@ consulte [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md).
 ## Requisitos
 
 - Python 3.8+
-- Dependências listadas em `requirements.txt`
+- Dependências listadas em `requirements.txt` (inclui `bitsandbytes` para modelos quantizados)
 
 ## Instalacao
 
@@ -128,5 +128,6 @@ eh copiado para a tabela `analyzed_logs` para facilitar consultas futuras.
 
 Um monitor adicional utiliza o modelo **caffeinatedcherrychic/mistral-based-NIDS**
 para classificar eventos de rede como ataques DoS, Port Scan, Brute Force ou
-PingScan. As entradas sao registradas na tabela `network_events` e podem ser
-acompanhadas pela aba "Trafego de rede" do painel web.
+PingScan. Essa versao quantizada requer a biblioteca `bitsandbytes`. As entradas
+sao registradas na tabela `network_events` e podem ser acompanhadas pela aba
+"Trafego de rede" do painel web.
