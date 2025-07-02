@@ -127,6 +127,17 @@ class LogDB:
         cur.close()
         return rows
 
+    def fetch_log(self, log_id: int) -> tuple[Any, ...] | None:
+        """Return a single log entry by ID with all fields."""
+        cur = self.conn.cursor()
+        cur.execute(
+            "SELECT id, timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier FROM logs WHERE id = %s",
+            (log_id,),
+        )
+        row = cur.fetchone()
+        cur.close()
+        return row
+
     def get_log_with_context(
         self, log_id: int, context: int = 5
     ) -> list[Tuple[Any, ...]]:
