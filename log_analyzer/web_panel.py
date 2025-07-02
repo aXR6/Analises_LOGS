@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from log_analyzer.log_db import LogDB
 from log_analyzer.llm_analysis import analyze_log
-from log_analyzer.attack_detection import count_attack_types
+from log_analyzer.attack_detection import count_attack_types, classify_attack
 import os
 from pathlib import Path
 
@@ -68,7 +68,10 @@ def logs_page():
     severity = request.args.get('severity')
     program = request.args.get('program')
     db = LogDB()
-    logs = list(db.fetch_logs(limit=100, page=page, severity=severity, program=program))
+    logs = []
+    for row in db.fetch_logs(limit=100, page=page, severity=severity, program=program):
+        attack = classify_attack(row[4])
+        logs.append(list(row) + [attack])
     db.close()
     return render_template(
         'logs.html',
@@ -129,16 +132,17 @@ def api_logs():
     program = request.args.get('program')
     search = request.args.get('search')
     db = LogDB()
-    logs = list(
-        db.fetch_logs(
-            limit=limit,
-            page=page,
-            severity=severity,
-            host=host,
-            program=program,
-            search=search,
-        )
-    )
+    logs = []
+    for row in db.fetch_logs(
+        limit=limit,
+        page=page,
+        severity=severity,
+        host=host,
+        program=program,
+        search=search,
+    ):
+        attack = classify_attack(row[4])
+        logs.append(list(row) + [attack])
     db.close()
     return jsonify({'logs': logs})
 
