@@ -3,6 +3,11 @@
 <h2 class="mb-4">Tráfego de Rede</h2>
 <div id="net-list" class="list-group"></div>
 <script>
+const LABEL_COLORS = {{ label_colors | tojson }};
+function labelClass(name) {
+  const key = name.toLowerCase();
+  return LABEL_COLORS[key] || '';
+}
 async function fetchNetwork(page=1) {
   const resp = await fetch('/api/network?page=' + page);
   if (!resp.ok) return;
@@ -12,10 +17,16 @@ async function fetchNetwork(page=1) {
   for (const row of data.events) {
     const item = document.createElement('div');
     item.className = 'list-group-item small';
+    if (row[3].toLowerCase() !== 'normal') {
+      item.classList.add('list-group-item-danger');
+    }
     item.innerHTML = `
-        <div><strong>ID:</strong> ${row[0]} - <strong>${row[1]}</strong></div>
         <div class="d-flex flex-wrap gap-2">
-          <span><strong>Rotulo:</strong> ${row[3]}</span>
+          <span><strong>ID:</strong> ${row[0]}</span>
+          <span><strong>${row[1]}</strong></span>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="${labelClass(row[3])}"><strong>${row[3]}</strong></span>
           <span><strong>Score:</strong> ${row[4].toFixed(2)}</span>
         </div>
         <div class="text-break">${row[2]}</div>`;
