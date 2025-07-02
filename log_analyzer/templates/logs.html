@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="mb-4">Eventos Recentes</h2>
-<div class="d-flex justify-content-between mb-3">
-  <form id="filter-form" class="d-flex gap-2" method="get">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+  <form id="filter-form" class="d-flex flex-wrap gap-2" method="get">
     <select name="severity" class="form-select form-select-sm">
       <option value="">Todas</option>
       <option value="INFO">INFO</option>
@@ -11,11 +11,12 @@
     </select>
     <button class="btn btn-sm btn-primary" type="submit">Filtrar</button>
   </form>
-  <div>
+  <div class="d-flex gap-2">
     <a href="?page={{ page-1 if page>1 else 1 }}{% if severity %}&severity={{ severity }}{% endif %}" class="btn btn-sm btn-secondary">Anterior</a>
     <a href="?page={{ page+1 }}{% if severity %}&severity={{ severity }}{% endif %}" class="btn btn-sm btn-secondary">Próximo</a>
   </div>
 </div>
+<div class="table-responsive">
 <table id="log-table" class="table table-striped">
 <thead>
 <tr><th>ID</th><th>Timestamp</th><th>Host</th><th>Programa</th><th>Severidade</th><th>Anomalia</th><th>Semantica</th><th>Mensagem</th><th></th></tr>
@@ -29,6 +30,7 @@
 {% endfor %}
 </tbody>
 </table>
+</div>
 <!-- Modal -->
 <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
