@@ -315,5 +315,29 @@ class LogDB:
         cur.close()
         return rows
 
+    def count_logs(self) -> int:
+        """Return total number of log entries."""
+        cur = self.conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM logs")
+        count = cur.fetchone()[0]
+        cur.close()
+        return count
+
+    def count_analyzed_logs(self) -> int:
+        """Return number of analyzed log entries."""
+        cur = self.conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM analyzed_logs")
+        count = cur.fetchone()[0]
+        cur.close()
+        return count
+
+    def count_network_events(self) -> int:
+        """Return total number of network events."""
+        cur = self.conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM network_events")
+        count = cur.fetchone()[0]
+        cur.close()
+        return count
+
     def close(self) -> None:
         self.conn.close()
