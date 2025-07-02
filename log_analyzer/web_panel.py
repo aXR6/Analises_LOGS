@@ -82,6 +82,15 @@ def analyzed_page():
     )
 
 
+@app.route('/network')
+def network_page():
+    return render_template(
+        'network.html',
+        severity_colors=SEVERITY_COLORS,
+        menu='network'
+    )
+
+
 @app.route('/api/analyzed')
 def api_analyzed():
     limit = int(request.args.get('limit', 100))
@@ -90,6 +99,16 @@ def api_analyzed():
     logs = list(db.fetch_analyzed_logs(limit=limit, page=page))
     db.close()
     return jsonify({'logs': logs})
+
+
+@app.route('/api/network')
+def api_network():
+    limit = int(request.args.get('limit', 100))
+    page = int(request.args.get('page', 1))
+    db = LogDB()
+    events = list(db.fetch_network_events(limit=limit, page=page))
+    db.close()
+    return jsonify({'events': events})
 
 
 @app.route('/api/logs')

@@ -59,6 +59,15 @@ class LogDB:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )"""
         )
+        cur.execute(
+            """CREATE TABLE IF NOT EXISTS network_events (
+                    id SERIAL PRIMARY KEY,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    event TEXT,
+                    label TEXT,
+                    score REAL
+            )"""
+        )
         cur.close()
         self.conn.commit()
 
@@ -231,6 +240,31 @@ class LogDB:
             (limit,),
         )
         rows = [r[0] for r in cur.fetchall()]
+        cur.close()
+        return rows
+
+    def insert_network_event(self, event: str, label: str, score: float) -> None:
+        cur = self.conn.cursor()
+        cur.execute(
+            "INSERT INTO network_events (event, label, score) VALUES (%s, %s, %s)",
+            (event, label, score),
+        )
+        cur.close()
+        self.conn.commit()
+
+    def fetch_network_events(self, limit: int = 100, page: int | None = None) -> Iterable[Tuple[Any, ...]]:
+        query = "SELECT id, timestamp, event, label, score FROM network_events ORDER BY id DESC"
+        params: list[Any] = []
+        if page is not None:
+            offset = (page - 1) * limit
+            query += " LIMIT %s OFFSET %s"
+            params.extend([limit, offset])
+        else:
+            query += " LIMIT %s"
+            params.append(limit)
+        cur = self.conn.cursor()
+        cur.execute(query, tuple(params))
+        rows = cur.fetchall()
         cur.close()
         return rows
 

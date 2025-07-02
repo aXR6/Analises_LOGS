@@ -124,3 +124,10 @@ python -m log_analyzer.llm_analysis ID_DO_LOG
 O resultado da analise e armazenado na tabela `log_analysis`, ligado ao
 registro original. Alem disso, o log analisado juntamente com o resumo gerado
 eh copiado para a tabela `analyzed_logs` para facilitar consultas futuras.
+
+## Monitoramento de Tráfego de Rede
+
+Um monitor adicional utiliza o modelo **caffeinatedcherrychic/mistral-based-NIDS**
+para classificar eventos de rede como ataques DoS, Port Scan, Brute Force ou
+PingScan. As entradas sao registradas na tabela `network_events` e podem ser
+acompanhadas pela aba "Trafego de rede" do painel web.

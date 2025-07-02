@@ -10,6 +10,7 @@ processes = {
     "coletor": None,
     "painel_tui": None,
     "painel_web": None,
+    "nids": None,
 }
 
 device_type = os.environ.get("DEVICE_TYPE", "cpu")
@@ -41,6 +42,18 @@ def iniciar_web() -> None:
     iniciar("painel_web", "log_analyzer.web_panel", quiet=True)
 
 
+def iniciar_coleta() -> None:
+    """Inicia coletor de logs e monitor de rede."""
+    iniciar("coletor", "log_analyzer.collector")
+    iniciar("nids", "log_analyzer.network_nids")
+
+
+def finalizar_coleta() -> None:
+    """Finaliza coletor de logs e monitor de rede."""
+    finalizar("coletor")
+    finalizar("nids")
+
+
 def finalizar(nome: str) -> None:
     """Finaliza o processo associado ao nome informado."""
     proc = processes.get(nome)
@@ -63,8 +76,8 @@ def alternar_dispositivo() -> None:
 def menu() -> None:
     """Exibe o menu principal e processa as escolhas do usuario."""
     opcoes = {
-        "1": (iniciar, "coletor", "log_analyzer.collector"),
-        "2": (finalizar, "coletor"),
+        "1": (iniciar_coleta,),
+        "2": (finalizar_coleta,),
         "3": (iniciar, "painel_tui", "log_analyzer.tui_panel"),
         "4": (finalizar, "painel_tui"),
         "5": (iniciar_web,),
@@ -78,8 +91,8 @@ def menu() -> None:
 
     while True:
         print("\nMenu Principal")
-        print(f"1. Iniciar Coletor {status('coletor')}")
-        print("2. Finalizar Coletor")
+        print(f"1. Iniciar Coletor/NIDS {status('coletor')}")
+        print("2. Finalizar Coletor/NIDS")
         print(f"3. Iniciar Painel TUI {status('painel_tui')}")
         print("4. Finalizar Painel TUI")
         print(f"5. Iniciar Painel Web {status('painel_web')}")
