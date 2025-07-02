@@ -30,6 +30,7 @@
         <span class="{{ severity_colors.get(row[6], '') }}"><strong>{{row[6]}}{{ '*' if row[8] else '' }}</strong></span>
         <span><strong>Anomalia:</strong> {{'%.2f'|format(row[7])}}</span>
         <span><strong>Semântica:</strong> {{ 'sim' if row[9] else 'nao'}}</span>
+        {% if row[10] %}<span class="badge text-bg-danger">{{ row[10] }}</span>{% endif %}
       </div>
       <div class="text-break">{{row[4]}}</div>
     </div>
@@ -77,6 +78,7 @@ async function fetchLogs(page = {{ page }}) {
             <span class="${severityColors[row[6]] || ''}"><strong>${row[6]}${row[8] ? '*' : ''}</strong></span>
             <span><strong>Anomalia:</strong> ${row[7].toFixed(2)}</span>
             <span><strong>Semântica:</strong> ${row[9] ? 'sim' : 'nao'}</span>
+            ${row[10] ? `<span class="badge text-bg-danger">${row[10]}</span>` : ''}
           </div>
           <div class="text-break">${row[4]}</div>
         </div>
