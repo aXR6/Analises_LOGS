@@ -73,7 +73,7 @@ def logs_page():
     db = LogDB()
     logs = []
     for row in db.fetch_logs(limit=100, page=page, severity=severity, program=program):
-        attack = classify_attack(row[4])
+        attack = classify_attack(row[5])
         logs.append(list(row) + [attack])
     db.close()
     return render_template(
@@ -163,7 +163,7 @@ def api_logs():
         program=program,
         search=search,
     ):
-        attack = classify_attack(row[4])
+        attack = classify_attack(row[5])
         logs.append(list(row) + [attack])
     db.close()
     return jsonify({'logs': logs})
