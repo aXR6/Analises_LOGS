@@ -64,9 +64,13 @@ class LogDB:
                     id SERIAL PRIMARY KEY,
                     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     event TEXT,
+                    source TEXT,
                     label TEXT,
                     score REAL
             )"""
+        )
+        cur.execute(
+            "ALTER TABLE network_events ADD COLUMN IF NOT EXISTS source TEXT"
         )
         cur.close()
         self.conn.commit()
@@ -265,18 +269,32 @@ class LogDB:
         cur.close()
         return rows
 
-    def insert_network_event(self, event: str, label: str, score: float) -> None:
+    def insert_network_event(
+        self, event: str, label: str, score: float, source: str | None = None
+    ) -> None:
         cur = self.conn.cursor()
         cur.execute(
-            "INSERT INTO network_events (event, label, score) VALUES (%s, %s, %s)",
-            (event, label, score),
+            "INSERT INTO network_events (event, label, score, source) VALUES (%s, %s, %s, %s)",
+            (event, label, score, source),
         )
         cur.close()
         self.conn.commit()
 
-    def fetch_network_events(self, limit: int = 100, page: int | None = None) -> Iterable[Tuple[Any, ...]]:
-        query = "SELECT id, timestamp, event, label, score FROM network_events ORDER BY id DESC"
+    def fetch_network_events(
+        self,
+        limit: int = 100,
+        page: int | None = None,
+        source: str | None = None,
+    ) -> Iterable[Tuple[Any, ...]]:
+        query = "SELECT id, timestamp, event, label, score, source FROM network_events"
+        clauses: list[str] = []
         params: list[Any] = []
+        if source:
+            clauses.append("source = %s")
+            params.append(source)
+        if clauses:
+            query += " WHERE " + " AND ".join(clauses)
+        query += " ORDER BY id DESC"
         if page is not None:
             offset = (page - 1) * limit
             query += " LIMIT %s OFFSET %s"
@@ -287,6 +305,13 @@ class LogDB:
         cur = self.conn.cursor()
         cur.execute(query, tuple(params))
         rows = cur.fetchall()
+        cur.close()
+        return rows
+
+    def list_network_sources(self) -> Iterable[str]:
+        cur = self.conn.cursor()
+        cur.execute("SELECT DISTINCT source FROM network_events WHERE source IS NOT NULL")
+        rows = [r[0] for r in cur.fetchall()]
         cur.close()
         return rows
 

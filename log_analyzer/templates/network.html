@@ -1,15 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="mb-4">Tráfego de Rede</h2>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+  <form class="d-flex flex-wrap gap-2" method="get">
+    <select name="source" class="form-select form-select-sm">
+      <option value="">Todos</option>
+      {% for s in sources %}
+      <option value="{{s}}" {% if s==source %}selected{% endif %}>{{s}}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-sm btn-primary" type="submit">Filtrar</button>
+  </form>
+  <div class="d-flex gap-2">
+    <a href="?page={{ page-1 if page>1 else 1 }}{% if source %}&source={{ source }}{% endif %}" class="btn btn-sm btn-secondary">Anterior</a>
+    <a href="?page={{ page+1 }}{% if source %}&source={{ source }}{% endif %}" class="btn btn-sm btn-secondary">Próximo</a>
+  </div>
+</div>
 <div id="net-list" class="list-group"></div>
 <script>
 const LABEL_COLORS = {{ label_colors | tojson }};
+const startPage = {{ page }};
+const currentSource = "{{ source or '' }}";
 function labelClass(name) {
   const key = name.toLowerCase();
   return LABEL_COLORS[key] || '';
 }
-async function fetchNetwork(page=1) {
-  const resp = await fetch('/api/network?page=' + page);
+async function fetchNetwork(page=startPage) {
+  const params = new URLSearchParams({page: page, source: currentSource});
+  const resp = await fetch('/api/network?' + params.toString());
   if (!resp.ok) return;
   const data = await resp.json();
   const list = document.getElementById('net-list');
@@ -24,6 +42,7 @@ async function fetchNetwork(page=1) {
         <div class="d-flex flex-wrap gap-2">
           <span><strong>ID:</strong> ${row[0]}</span>
           <span><strong>${row[1]}</strong></span>
+          <span><strong>Modulo:</strong> <a href="?source=${row[5]}">${row[5] || 'desconhecido'}</a></span>
         </div>
         <div class="d-flex flex-wrap gap-2">
           <span class="${labelClass(row[3])}"><strong>${row[3]}</strong></span>

@@ -131,8 +131,10 @@ eh copiado para a tabela `analyzed_logs` para facilitar consultas futuras.
 
 Um monitor adicional utiliza o modelo definido na variavel `NIDS_MODEL` para
 classificar eventos de rede como ataques DoS, Port Scan, Brute Force ou
-PingScan. As entradas são registradas na tabela `network_events` e podem ser
-acompanhadas pela aba "Trafego de rede" do painel web.
+PingScan. As entradas são registradas na tabela `network_events` com o nome do
+modulo responsavel e podem ser acompanhadas pela aba "Trafego de rede" do painel
+web. A listagem possui paginacao e permite filtrar pelo modulo ao clicar sobre
+ele.
 
 Se o repositório do modelo não incluir arquivos de tokenizer, defina a variável
 de ambiente `NIDS_TOKENIZER` com o nome de um tokenizer compatível, por exemplo
