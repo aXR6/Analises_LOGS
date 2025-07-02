@@ -254,6 +254,17 @@ class LogDB:
         cur.close()
         return rows
 
+    def fetch_recent_attack_logs(self, limit: int = 5) -> Iterable[Tuple[Any, ...]]:
+        """Return recent malicious log entries with all fields."""
+        cur = self.conn.cursor()
+        cur.execute(
+            "SELECT timestamp, host, message FROM logs WHERE malicious = TRUE ORDER BY id DESC LIMIT %s",
+            (limit,),
+        )
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+
     def insert_network_event(self, event: str, label: str, score: float) -> None:
         cur = self.conn.cursor()
         cur.execute(

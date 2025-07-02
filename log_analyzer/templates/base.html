@@ -21,6 +21,7 @@
     <div id="toolbar" class="d-flex flex-wrap gap-3 small mt-2">
       <span id="severity-info"></span>
       <span id="attack-info"></span>
+      <span id="alert-info" class="text-danger"></span>
       <span id="iface-info"></span>
       <button id="theme-toggle" class="btn btn-sm btn-secondary" type="button">
         <i id="theme-icon" class="bi"></i>
@@ -49,8 +50,25 @@ async function fetchStats() {
   ).join(' ');
   iface.textContent = `Ativas: ${data.interfaces.active.join(', ')} | Atividade: ${data.interfaces.activity.join(', ')}`;
 }
+
+async function fetchAlerts() {
+  const resp = await fetch('/api/alerts');
+  if (!resp.ok) return;
+  const data = await resp.json();
+  const bar = document.getElementById('alert-info');
+  if (!data.alerts.length) {
+    bar.textContent = '';
+    return;
+  }
+  const last = data.alerts[0];
+  const src = last.src || 'desconhecido';
+  const dst = last.dst || 'desconhecido';
+  bar.textContent = `${last.attack || 'ataque'}: ${src} -> ${dst}`;
+}
 fetchStats();
+fetchAlerts();
 setInterval(fetchStats, 5000);
+setInterval(fetchAlerts, 5000);
 const THEME_KEY = 'theme';
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-bs-theme', theme);

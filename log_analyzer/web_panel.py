@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 from log_analyzer.log_db import LogDB
 from log_analyzer.llm_analysis import analyze_log
 from log_analyzer.attack_detection import count_attack_types, classify_attack
+from log_analyzer.attack_detection import extract_ips
 import os
 from pathlib import Path
 
@@ -160,6 +161,21 @@ def api_stats():
         'attacks': attacks,
         'interfaces': {'active': active, 'activity': activity}
     })
+
+
+@app.route('/api/alerts')
+def api_alerts():
+    db = LogDB()
+    rows = list(db.fetch_recent_attack_logs(limit=5))
+    db.close()
+    alerts = []
+    for ts, host, msg in rows:
+        attack = classify_attack(msg)
+        src, dst = extract_ips(msg)
+        if not dst:
+            dst = host
+        alerts.append({'timestamp': ts, 'src': src, 'dst': dst, 'attack': attack})
+    return jsonify({'alerts': alerts})
 
 
 @app.route('/api/analyze/<int:log_id>')

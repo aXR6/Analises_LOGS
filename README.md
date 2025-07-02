@@ -98,7 +98,7 @@ Linhas que contenham termos como `denied`, `attack` ou `malware` sao
 classificadas como **MALICIOUS** e geram uma mensagem de alerta no terminal.
 Entradas marcadas dessa forma sao categorizadas por tipo de ataque (por
 exemplo `ssh-brute-force` ou `unauthorized-access`) e o resultado fica visivel
-no painel web.
+no painel web. As ocorrencias mais recentes tambem aparecem em um aviso no topo do painel, exibindo IP de origem, destino e tipo do ataque.
 Adicionalmente, entradas cujo `anomaly_score` ultrapassa o valor definido em
 `ANOMALY_THRESHOLD` tambem sao tratadas como suspeitas.
 
