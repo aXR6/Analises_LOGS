@@ -96,17 +96,60 @@ class LogDB:
         cur.close()
         self.conn.commit()
 
-    def insert_log(self, timestamp: str, host: str, program: str, message: str,
-                   category: str, severity: str, anomaly_score: float,
-                   malicious: bool, semantic_outlier: bool) -> None:
+    def insert_log(
+        self,
+        timestamp: str,
+        host: str,
+        program: str,
+        message: str,
+        category: str,
+        severity: str,
+        anomaly_score: float,
+        malicious: bool,
+        semantic_outlier: bool,
+    ) -> int:
+        """Insert log and return its ID. Also index in Elasticsearch if available."""
         cur = self.conn.cursor()
         cur.execute(
             "INSERT INTO logs (timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-            (timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier)
+            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (
+                timestamp,
+                host,
+                program,
+                message,
+                category,
+                severity,
+                anomaly_score,
+                malicious,
+                semantic_outlier,
+            ),
         )
+        log_id = cur.fetchone()[0]
         cur.close()
         self.conn.commit()
+
+        try:
+            from .es_client import index_log
+
+            index_log(
+                log_id,
+                {
+                    "timestamp": timestamp,
+                    "host": host,
+                    "program": program,
+                    "message": message,
+                    "category": category,
+                    "severity": severity,
+                    "anomaly_score": anomaly_score,
+                    "malicious": malicious,
+                    "semantic_outlier": semantic_outlier,
+                },
+            )
+        except Exception:
+            pass
+
+        return log_id
 
     def fetch_logs(
         self,
@@ -134,8 +177,13 @@ class LogDB:
             clauses.append("program = %s")
             params.append(program)
         if search:
-            clauses.append("message ILIKE %s")
-            params.append(f"%{search}%")
+            from .es_client import search_logs
+
+            ids = search_logs(search, limit=limit, page=page or 1)
+            if not ids:
+                return []
+            clauses.append("id = ANY(%s)")
+            params.append(ids)
         if clauses:
             query += " WHERE " + " AND ".join(clauses)
         query += " ORDER BY id DESC"
