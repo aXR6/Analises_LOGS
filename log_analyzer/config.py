@@ -23,7 +23,7 @@ ANOMALY_MODEL = os.getenv(
 
 # Modelo para deteccao de intrusoes em rede
 NIDS_MODEL = os.getenv(
-    "NIDS_MODEL", "caffeinatedcherrychic/mistral-based-NIDS"
+    "NIDS_MODEL", "SilverDragon9/Sniffer.AI"
 )
 NIDS_TOKENIZER = os.getenv("NIDS_TOKENIZER")
 NET_LOG_FILE = Path(os.getenv("NET_LOG_FILE", "network.log"))
