@@ -2,11 +2,10 @@
 
 Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco de dados
 PostgreSQL e fornece dois paineis de monitoramento. A classificacao de severidade
-dos logs utiliza o modelo **byviz/bylastic_classification_logs** disponivel no
-Hugging Face. Esse modelo organiza os eventos em **ERROR**, **WARNING** e **INFO**,
-conforme descrito na [documentacao do projeto](https://huggingface.co/byviz/bylastic_classification_logs).
-Adicionalmente, e calculada uma pontuacao de anomalia com o modelo
-**teoogherghi/Log-Analysis-Model-DistilBert**.
+dos logs utiliza o modelo indicado na variavel `SEVERITY_MODEL` definida no
+arquivo `.env`. Esse modelo organiza os eventos em **ERROR**, **WARNING** e
+**INFO**, conforme a documentacao do repositorio escolhido. A pontuacao de
+anomalia tambem e calculada a partir do modelo configurado em `ANOMALY_MODEL`.
 
 Painéis disponíveis:
 
@@ -103,8 +102,8 @@ Adicionalmente, entradas cujo `anomaly_score` ultrapassa o valor definido em
 
 Para detectar padroes incomuns no texto dos logs e possivel executar o modulo
 `log_analyzer.semantic_anomaly`. O utilitario gera embeddings utilizando o
-modelo `all-MiniLM-L6-v2` da biblioteca *sentence-transformers* e aplica o
-algoritmo DBSCAN para identificar mensagens atipicas.
+modelo configurado em `SEMANTIC_MODEL` da biblioteca *sentence-transformers* e
+aplica o algoritmo DBSCAN para identificar mensagens atipicas.
 
 ```bash
 python -m log_analyzer.semantic_anomaly caminho/para/arquivo.log
@@ -126,8 +125,8 @@ eh copiado para a tabela `analyzed_logs` para facilitar consultas futuras.
 
 ## Monitoramento de Tráfego de Rede
 
-Um monitor adicional utiliza o modelo **SilverDragon9/Sniffer.AI**
-para classificar eventos de rede como ataques DoS, Port Scan, Brute Force ou
+Um monitor adicional utiliza o modelo definido na variavel `NIDS_MODEL` para
+classificar eventos de rede como ataques DoS, Port Scan, Brute Force ou
 PingScan. As entradas são registradas na tabela `network_events` e podem ser
 acompanhadas pela aba "Trafego de rede" do painel web.
 
@@ -140,8 +139,10 @@ A integração básica pode ser feita com a biblioteca `transformers`:
 ```python
 from transformers import pipeline
 
-# Exemplo: classificação com Sniffer.AI
-classifier = pipeline("text-classification", model="SilverDragon9/Sniffer.AI")
+# Exemplo: classificacao utilizando o modelo informado em `NIDS_MODEL`
+import os
+
+classifier = pipeline("text-classification", model=os.getenv("NIDS_MODEL"))
 
 log = {
     # características do fluxo IoT ou rede transformadas em JSON ou vetores

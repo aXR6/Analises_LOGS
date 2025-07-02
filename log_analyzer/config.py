@@ -5,36 +5,37 @@ from dotenv import load_dotenv
 # Load environment variables from .env if present
 load_dotenv()
 
+
+def _require_env(name: str) -> str:
+    """Return the value of an environment variable or raise an error."""
+    value = os.getenv(name)
+    if not value:
+        raise EnvironmentError(f"Variavel {name} nao definida")
+    return value
+
+
 # Parametros de conexao definidos exclusivamente via variáveis de ambiente
-DB_HOST = os.getenv("PG_HOST")
-DB_PORT = int(os.getenv("PG_PORT"))
-DB_NAME = os.getenv("PG_DB")
-DB_USER = os.getenv("PG_USER")
-DB_PASSWORD = os.getenv("PG_PASS")
+DB_HOST = _require_env("PG_HOST")
+DB_PORT = int(_require_env("PG_PORT"))
+DB_NAME = _require_env("PG_DB")
+DB_USER = _require_env("PG_USER")
+DB_PASSWORD = _require_env("PG_PASS")
 
 LOG_FILE = Path(os.getenv("LOG_FILE", "rsyslog.log"))
 
-SEVERITY_MODEL = os.getenv(
-    "SEVERITY_MODEL", "byviz/bylastic_classification_logs"
-)
-ANOMALY_MODEL = os.getenv(
-    "ANOMALY_MODEL", "teoogherghi/Log-Analysis-Model-DistilBert"
-)
+SEVERITY_MODEL = _require_env("SEVERITY_MODEL")
+ANOMALY_MODEL = _require_env("ANOMALY_MODEL")
 
 # Modelo para deteccao de intrusoes em rede
-NIDS_MODEL = os.getenv(
-    "NIDS_MODEL", "SilverDragon9/Sniffer.AI"
-)
+NIDS_MODEL = _require_env("NIDS_MODEL")
 NIDS_TOKENIZER = os.getenv("NIDS_TOKENIZER")
 NET_LOG_FILE = Path(os.getenv("NET_LOG_FILE", "network.log"))
 
 # Model used for semantic anomaly detection via SentenceTransformers
-SEMANTIC_MODEL = os.getenv("SEMANTIC_MODEL", "all-MiniLM-L6-v2")
+SEMANTIC_MODEL = _require_env("SEMANTIC_MODEL")
 
 # Modelo para analise de logs usando Hugging Face
-HUGGINGFACE_MODEL = os.getenv(
-    "HUGGINGFACE_MODEL", "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
-)
+HUGGINGFACE_MODEL = _require_env("HUGGINGFACE_MODEL")
 # Tipo de dispositivo para o pipeline do Hugging Face: "cpu" ou "cuda"
 DEVICE_TYPE = os.getenv("DEVICE_TYPE", "cpu")
 
