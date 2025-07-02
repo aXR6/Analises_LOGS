@@ -83,6 +83,7 @@ clicar sobre ele.
 Como opcao, execute `python menu.py` para gerenciar todas as funcionalidades a partir de um menu interativo.
 O menu tambem permite alternar entre execucao em **CPU** ou **GPU** para a
 analise com modelos LLM.
+Tambem e possivel selecionar a interface de rede utilizada pelo monitoramento.
 
 ## Estrutura de diretorios
 
@@ -133,6 +134,7 @@ acompanhadas pela aba "Trafego de rede" do painel web.
 Se o repositório do modelo não incluir arquivos de tokenizer, defina a variável
 de ambiente `NIDS_TOKENIZER` com o nome de um tokenizer compatível, por exemplo
 `bert-base-uncased`.
+O dispositivo de rede utilizado na captura e definido em `NET_INTERFACE`.
 
 A integração básica pode ser feita com a biblioteca `transformers`:
 
