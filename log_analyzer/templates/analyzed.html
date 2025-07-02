@@ -1,32 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="mb-4">Logs Analisados</h2>
-<div class="table-responsive">
-<table id="analyzed-table" class="table table-striped">
-<thead>
-<tr><th>ID Original</th><th>Timestamp</th><th>Programa</th><th>Severidade</th><th>Anomalia</th><th>Mensagem</th><th>Resumo</th></tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
+<div id="analyzed-list" class="list-group"></div>
 <script>
 async function fetchAnalyzed(page=1) {
   const resp = await fetch('/api/analyzed?page='+page);
   if (!resp.ok) return;
   const data = await resp.json();
-  const tbody = document.querySelector('#analyzed-table tbody');
-  tbody.innerHTML = '';
+  const list = document.getElementById('analyzed-list');
+  list.innerHTML = '';
   for (const row of data.logs) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-        <td>${row[0]}</td>
-        <td>${row[1]}</td>
-        <td>${row[3]}</td>
-        <td>${row[6]}</td>
-        <td>${row[7].toFixed(2)}</td>
-        <td>${row[4]}</td>
-        <td>${row[10]}</td>`;
-    tbody.appendChild(tr);
+    const item = document.createElement('div');
+    item.className = 'list-group-item small';
+    item.innerHTML = `
+        <div><strong>ID Original:</strong> ${row[0]} - <strong>${row[1]}</strong></div>
+        <div class="d-flex flex-wrap gap-2">
+          <span><strong>Programa:</strong> ${row[3]}</span>
+          <span><strong>Severidade:</strong> ${row[6]}</span>
+          <span><strong>Anomalia:</strong> ${row[7].toFixed(2)}</span>
+        </div>
+        <div class="text-break">${row[4]}</div>
+        <div class="mt-1"><strong>Resumo:</strong> ${row[10]}</div>`;
+    list.appendChild(item);
   }
 }
 fetchAnalyzed();
