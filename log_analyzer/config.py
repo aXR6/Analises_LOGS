@@ -30,6 +30,7 @@ ANOMALY_MODEL = _require_env("ANOMALY_MODEL")
 NIDS_MODEL = _require_env("NIDS_MODEL")
 NIDS_TOKENIZER = os.getenv("NIDS_TOKENIZER")
 NET_LOG_FILE = Path(os.getenv("NET_LOG_FILE", "network.log"))
+NET_INTERFACE = os.getenv("NET_INTERFACE")
 
 # Model used for semantic anomaly detection via SentenceTransformers
 SEMANTIC_MODEL = _require_env("SEMANTIC_MODEL")
