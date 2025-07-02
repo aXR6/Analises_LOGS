@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="mb-4">Logs Analisados</h2>
+<div class="table-responsive">
 <table id="analyzed-table" class="table table-striped">
 <thead>
 <tr><th>ID Original</th><th>Timestamp</th><th>Programa</th><th>Severidade</th><th>Anomalia</th><th>Mensagem</th><th>Resumo</th></tr>
 </thead>
 <tbody></tbody>
 </table>
+</div>
 <script>
 async function fetchAnalyzed(page=1) {
   const resp = await fetch('/api/analyzed?page='+page);
