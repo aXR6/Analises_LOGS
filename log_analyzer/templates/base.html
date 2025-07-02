@@ -15,6 +15,7 @@
       <ul class="navbar-nav flex-row gap-3">
         <li class="nav-item"><a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active text-white{% else %}text-secondary{% endif %}">Logs</a></li>
         <li class="nav-item"><a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active text-white{% else %}text-secondary{% endif %}">Analisados</a></li>
+        <li class="nav-item"><a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active text-white{% else %}text-secondary{% endif %}">Trafego de rede</a></li>
       </ul>
     </div>
     <div id="toolbar" class="d-flex flex-wrap gap-3 small mt-2">

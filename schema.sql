@@ -33,3 +33,11 @@ CREATE TABLE analyzed_logs (
     analysis TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE network_events (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    event TEXT,
+    label TEXT,
+    score REAL
+);
