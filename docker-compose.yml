@@ -10,30 +10,18 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
-    container_name: graylog_es
+    container_name: elasticsearch
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ports:
+      - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
     networks:
       - graylog
-
-  postgres:
-    image: postgres:15
-    container_name: postgres
-    environment:
-      - POSTGRES_DB=${PG_DB:-logs}
-      - POSTGRES_USER=${PG_USER:-logs}
-      - POSTGRES_PASSWORD=${PG_PASS:-logs}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - graylog
-    ports:
-      - "5432:5432"
 
   graylog:
     image: graylog/graylog:5.2
@@ -41,16 +29,20 @@ services:
     depends_on:
       - mongo
       - elasticsearch
-      - postgres
     environment:
       - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
       - GRAYLOG_ROOT_PASSWORD_SHA2=e3afed0047b08059d0fada10f400c1e5af3403e1ff8eb44b4fa8d13d40e86b35
       - GRAYLOG_HTTP_EXTERNAL_URI=http://localhost:9000/
       - GRAYLOG_MONGODB_URI=mongodb://mongo:27017/graylog
       - GRAYLOG_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - PG_HOST=${PG_HOST}
+      - PG_PORT=${PG_PORT}
+      - PG_DB=${PG_DB}
+      - PG_USER=${PG_USER}
+      - PG_PASS=${PG_PASS}
     volumes:
-      - ./graylog.conf:/usr/share/graylog/data/config/graylog.conf
-      - ./postgres_input.conf:/etc/graylog/postgres_input.conf
+      - ./Graylog/graylog.conf:/usr/share/graylog/data/config/graylog.conf
+      - ./Graylog/postgres_input.conf:/etc/graylog/postgres_input.conf
     networks:
       - graylog
     restart: always
@@ -62,7 +54,6 @@ services:
 volumes:
   mongo_data:
   esdata:
-  pgdata:
 
 networks:
   graylog:

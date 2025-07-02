@@ -104,10 +104,10 @@ print(result)  # ex: {'label': 'Scanning', 'score': 0.87}
 O dispositivo de rede utilizado na captura é configurado em `NET_INTERFACE` e é possível enviar eventos para análise utilizando o mesmo modelo de logs, armazenando o resultado em `network_analysis` e `analyzed_network_events`.
 
 ## Integração com Graylog
-O diretório `Graylog` contém um `docker-compose.yml` com todos os serviços necessários para executar o Graylog (MongoDB, Elasticsearch e PostgreSQL). As credenciais do banco são lidas do arquivo `.env` do projeto. Para iniciar execute:
+O projeto disponibiliza um `docker-compose.yml` na raiz com todos os serviços necessários para executar o Graylog (MongoDB e Elasticsearch). Ele reutiliza o PostgreSQL já configurado através das variáveis presentes no `.env`. Para iniciar execute:
 
 ```bash
-docker compose -f Graylog/docker-compose.yml up -d
+docker compose up -d
 ```
 
 A interface ficará disponível em `http://localhost:9000` e os parâmetros adicionais estão definidos em `Graylog/graylog.conf`.
