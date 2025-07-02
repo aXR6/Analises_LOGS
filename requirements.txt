@@ -8,3 +8,4 @@ psycopg2-binary
 sentence-transformers
 scikit-learn
 bitsandbytes
+accelerate
