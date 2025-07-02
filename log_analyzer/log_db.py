@@ -23,6 +23,7 @@ class LogDB:
         cur.execute(
             """CREATE TABLE IF NOT EXISTS logs (
                     id SERIAL PRIMARY KEY,
+                    graylog_id TEXT,
                     timestamp TIMESTAMP,
                     host TEXT,
                     program TEXT,
@@ -33,6 +34,9 @@ class LogDB:
                     malicious BOOLEAN,
                     semantic_outlier BOOLEAN
             )"""
+        )
+        cur.execute(
+            "ALTER TABLE logs ADD COLUMN IF NOT EXISTS graylog_id TEXT"
         )
         cur.execute(
             """CREATE TABLE IF NOT EXISTS log_analysis (
@@ -46,6 +50,7 @@ class LogDB:
             """CREATE TABLE IF NOT EXISTS analyzed_logs (
                     id SERIAL PRIMARY KEY,
                     log_id INTEGER UNIQUE REFERENCES logs(id),
+                    graylog_id TEXT,
                     timestamp TIMESTAMP,
                     host TEXT,
                     program TEXT,
@@ -58,6 +63,9 @@ class LogDB:
                     analysis TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )"""
+        )
+        cur.execute(
+            "ALTER TABLE analyzed_logs ADD COLUMN IF NOT EXISTS graylog_id TEXT"
         )
         cur.execute(
             """CREATE TABLE IF NOT EXISTS network_events (
@@ -107,13 +115,15 @@ class LogDB:
         anomaly_score: float,
         malicious: bool,
         semantic_outlier: bool,
+        graylog_id: str | None = None,
     ) -> int:
         """Insert log and return its ID. Also index in Elasticsearch if available."""
         cur = self.conn.cursor()
         cur.execute(
-            "INSERT INTO logs (timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            "INSERT INTO logs (graylog_id, timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier)"
+            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
             (
+                graylog_id,
                 timestamp,
                 host,
                 program,
@@ -162,7 +172,7 @@ class LogDB:
     ) -> Iterable[Tuple[Any, ...]]:
         """Return logs optionally paginated and filtered."""
         query = (
-            "SELECT id, timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier"
+            "SELECT id, graylog_id, timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier"
             " FROM logs"
         )
         clauses: list[str] = []
@@ -204,7 +214,7 @@ class LogDB:
         """Return a single log entry by ID with all fields."""
         cur = self.conn.cursor()
         cur.execute(
-            "SELECT id, timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier FROM logs WHERE id = %s",
+            "SELECT id, graylog_id, timestamp, host, program, message, category, severity, anomaly_score, malicious, semantic_outlier FROM logs WHERE id = %s",
             (log_id,),
         )
         row = cur.fetchone()
@@ -217,7 +227,7 @@ class LogDB:
         """Return specified log with preceding context lines."""
         cur = self.conn.cursor()
         cur.execute(
-            "SELECT id, timestamp, host, message FROM logs WHERE id = %s",
+            "SELECT id, graylog_id, timestamp, host, message FROM logs WHERE id = %s",
             (log_id,),
         )
         main_log = cur.fetchone()
@@ -225,7 +235,7 @@ class LogDB:
             cur.close()
             return []
         cur.execute(
-            "SELECT id, timestamp, host, message FROM logs WHERE id < %s ORDER BY id DESC LIMIT %s",
+            "SELECT id, graylog_id, timestamp, host, message FROM logs WHERE id < %s ORDER BY id DESC LIMIT %s",
             (log_id, context),
         )
         context_rows = cur.fetchall()[::-1]

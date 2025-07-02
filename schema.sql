@@ -1,5 +1,6 @@
 CREATE TABLE logs (
     id SERIAL PRIMARY KEY,
+    graylog_id TEXT,
     timestamp TIMESTAMP,
     host TEXT,
     program TEXT,
@@ -21,6 +22,7 @@ CREATE TABLE log_analysis (
 CREATE TABLE analyzed_logs (
     id SERIAL PRIMARY KEY,
     log_id INTEGER UNIQUE REFERENCES logs(id),
+    graylog_id TEXT,
     timestamp TIMESTAMP,
     host TEXT,
     program TEXT,
