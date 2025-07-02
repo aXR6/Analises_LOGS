@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from log_analyzer.log_db import LogDB
-from log_analyzer.llm_analysis import analyze_log
+from log_analyzer.llm_analysis import analyze_log, analyze_network_event
 from log_analyzer.attack_detection import count_attack_types, classify_attack
 from log_analyzer.attack_detection import extract_ips
 import os
@@ -122,6 +122,16 @@ def api_analyzed():
     return jsonify({'logs': logs})
 
 
+@app.route('/api/analyzed_network')
+def api_analyzed_network():
+    limit = int(request.args.get('limit', 100))
+    page = int(request.args.get('page', 1))
+    db = LogDB()
+    events = list(db.fetch_analyzed_network_events(limit=limit, page=page))
+    db.close()
+    return jsonify({'events': events})
+
+
 @app.route('/api/network')
 def api_network():
     limit = int(request.args.get('limit', 100))
@@ -193,7 +203,7 @@ def api_counts():
     db = LogDB()
     counts = {
         'logs': db.count_logs(),
-        'analyzed': db.count_analyzed_logs(),
+        'analyzed': db.count_analyzed_logs() + db.count_analyzed_network_events(),
         'network': db.count_network_events(),
     }
     db.close()
@@ -203,6 +213,12 @@ def api_counts():
 @app.route('/api/analyze/<int:log_id>')
 def api_analyze(log_id: int):
     result = analyze_log(log_id)
+    return jsonify({'result': result})
+
+
+@app.route('/api/analyze_network/<int:event_id>')
+def api_analyze_network(event_id: int):
+    result = analyze_network_event(event_id)
     return jsonify({'result': result})
 
 if __name__ == '__main__':

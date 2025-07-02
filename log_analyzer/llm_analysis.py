@@ -63,6 +63,38 @@ def analyze_log(log_id: int, context: int = 5) -> str:
         return f"Erro ao consultar o modelo: {exc}"
 
 
+def analyze_network_event(event_id: int) -> str:
+    """Analyze a network event using the same Hugging Face model."""
+    db = LogDB()
+    event = db.fetch_network_event(event_id)
+    if not event:
+        db.close()
+        return "Evento de rede nao encontrado"
+
+    _id, ts, line, label, score, source = event
+    prompt = (
+        f"{LLM_PROMPT}\n"
+        f"ID Evento: {_id} - {ts}\n"
+        f"Modulo: {source or 'desconhecido'}\n"
+        f"Classificacao: {label}\n"
+        f"Score: {score}\n"
+        f"Detalhes: {line}"
+    )
+    try:
+        pipe = _get_pipeline()
+        result = pipe(prompt, max_new_tokens=200)[0]["generated_text"]
+        analysis_text = (
+            f"Resultado da analise do modelo {HUGGINGFACE_MODEL}:\n{result}"
+        )
+        db.insert_network_analysis(event_id, analysis_text)
+        db.insert_analyzed_network_event(event_id, analysis_text)
+        db.close()
+        return analysis_text
+    except Exception as exc:
+        db.close()
+        return f"Erro ao consultar o modelo: {exc}"
+
+
 if __name__ == "__main__":
     import argparse
 

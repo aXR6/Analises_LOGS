@@ -42,3 +42,22 @@ CREATE TABLE network_events (
     label TEXT,
     score REAL
 );
+
+CREATE TABLE network_analysis (
+    id SERIAL PRIMARY KEY,
+    event_id INTEGER REFERENCES network_events(id),
+    analysis TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE analyzed_network_events (
+    id SERIAL PRIMARY KEY,
+    event_id INTEGER UNIQUE REFERENCES network_events(id),
+    timestamp TIMESTAMP,
+    event TEXT,
+    label TEXT,
+    score REAL,
+    source TEXT,
+    analysis TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
