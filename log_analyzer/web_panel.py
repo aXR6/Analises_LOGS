@@ -14,6 +14,14 @@ SEVERITY_COLORS = {
     'ERROR': 'text-danger'
 }
 
+NIDS_COLORS = {
+    'normal': 'text-success',
+    'dos': 'text-danger',
+    'port scan': 'text-warning',
+    'brute force': 'text-info',
+    'pingscan': 'text-primary'
+}
+
 
 def get_network_info() -> tuple[list[str], list[str]]:
     """Return active interfaces and those with traffic."""
@@ -87,6 +95,7 @@ def network_page():
     return render_template(
         'network.html',
         severity_colors=SEVERITY_COLORS,
+        label_colors=NIDS_COLORS,
         menu='network'
     )
 
