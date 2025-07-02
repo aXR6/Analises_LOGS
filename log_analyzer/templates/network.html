@@ -46,22 +46,26 @@ async function fetchNetwork(page=startPage) {
   list.innerHTML = '';
   for (const row of data.events) {
     const item = document.createElement('div');
-    item.className = 'list-group-item small';
+    item.className = 'list-group-item small d-flex flex-column flex-lg-row justify-content-between gap-2';
     if (row[3].toLowerCase() !== 'normal') {
       item.classList.add('list-group-item-danger');
     }
     item.innerHTML = `
-        <div class="d-flex flex-wrap gap-2">
-          <span><strong>ID:</strong> ${row[0]}</span>
-          <span><strong>${row[1]}</strong></span>
-          <span><strong>Modulo:</strong> <a href="?source=${row[5]}">${row[5] || 'desconhecido'}</a></span>
+        <div class="flex-grow-1">
+          <div class="d-flex flex-wrap gap-2">
+            <span><strong>ID:</strong> ${row[0]}</span>
+            <span><strong>${row[1]}</strong></span>
+            <span><strong>Modulo:</strong> <a href="?source=${row[5]}">${row[5] || 'desconhecido'}</a></span>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="${labelClass(row[3])}"><strong>${row[3]}</strong></span>
+            <span><strong>Score:</strong> ${row[4].toFixed(2)}</span>
+          </div>
+          <div class="text-break">${row[2]}</div>
         </div>
-        <div class="d-flex flex-wrap gap-2">
-          <span class="${labelClass(row[3])}"><strong>${row[3]}</strong></span>
-          <span><strong>Score:</strong> ${row[4].toFixed(2)}</span>
-        </div>
-        <div class="text-break">${row[2]}</div>
-        <div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick="analyzeNet(${row[0]})">Analisar</button></div>`;
+        <div class="mt-2 mt-lg-0">
+          <button class="btn btn-sm btn-outline-primary" onclick="analyzeNet(${row[0]})">Analisar</button>
+        </div>`;
     list.appendChild(item);
   }
 }
