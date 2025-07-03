@@ -24,6 +24,31 @@ end
 
 Essa regra cria o campo `source_service` ao extrair o valor de `service` da mensagem.
 
+Para eventos de rede enviados pelo `net_sniffer.py` ou ferramentas semelhantes,
+pode ser útil extrair endereços IP, portas e protocolo da linha capturada.
+Uma regra mais completa ficaria assim:
+
+```pseudocode
+rule "parse_network_event"
+when
+  has_field("message")
+then
+  let msg = to_string($message.message);
+  let svc = regex("service=(\\w+)", msg);
+  let ip  = regex("(\d+\.\d+\.\d+\.\d+)\.(\d+) > (\d+\.\d+\.\d+\.\d+)\.(\d+)", msg);
+  let proto = regex("proto=(\w+)", msg);
+  set_field("source_service", svc.matches ? svc.group[1] : null);
+  set_field("src_ip", ip.matches ? ip.group[1] : null);
+  set_field("src_port", ip.matches ? ip.group[2] : null);
+  set_field("dst_ip", ip.matches ? ip.group[3] : null);
+  set_field("dst_port", ip.matches ? ip.group[4] : null);
+  set_field("protocol", proto.matches ? proto.group[1] : null);
+end
+```
+
+Com ela o Graylog adiciona campos estruturados para os pacotes de rede,
+facilitando buscas e o cruzamento com as demais informações de log.
+
 ## 3. Criar o Pipeline
 
 1. Ainda em **Pipelines**, clique em **Create pipeline**.
