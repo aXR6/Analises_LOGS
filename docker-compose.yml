@@ -40,7 +40,8 @@ services:
       - graylog
 
   graylog:
-    image: graylog/graylog-enterprise:6.1
+    # Versão Community do Graylog
+    image: graylog/graylog:6.1
     container_name: graylog
     restart: on-failure
     depends_on:
