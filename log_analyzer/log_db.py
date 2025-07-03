@@ -370,14 +370,33 @@ class LogDB:
 
     def insert_network_event(
         self, event: str, label: str, score: float, source: str | None = None
-    ) -> None:
+    ) -> int:
         cur = self.conn.cursor()
         cur.execute(
-            "INSERT INTO network_events (event, label, score, source) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO network_events (event, label, score, source) VALUES (%s, %s, %s, %s) RETURNING id",
             (event, label, score, source),
         )
+        event_id = cur.fetchone()[0]
         cur.close()
         self.conn.commit()
+
+        try:
+            from .graylog_client import send_gelf
+
+            gelf = {
+                "version": "1.1",
+                "host": source or "network",
+                "short_message": event,
+                "timestamp": datetime.utcnow().timestamp(),
+                "_label": label,
+                "_score": score,
+                "_source": source,
+            }
+            send_gelf(gelf)
+        except Exception:
+            pass
+
+        return event_id
 
     def fetch_network_events(
         self,
