@@ -57,9 +57,11 @@ services:
       GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
       GRAYLOG_ELASTICSEARCH_HOSTS: "http://opensearch:9200"
       GRAYLOG_PASSWORD_SECRET: "muitoseguraepepper1234567890"
+      # Usuario e senha definidos no .env
+      GRAYLOG_ROOT_USERNAME: "${GRAYLOG_ROOT_USERNAME}"
       # Coloque o SHA2 da senha do admin:
-      # unix: echo -n "admin123" | sha256sum | cut -d " " -f1
-      GRAYLOG_ROOT_PASSWORD_SHA2: "superSenhaComplexa123!"
+      # unix: echo -n "${GRAYLOG_ROOT_PASSWORD_SHA2}" | sha256sum | cut -d " " -f1
+      GRAYLOG_ROOT_PASSWORD_SHA2: "${GRAYLOG_ROOT_PASSWORD_SHA2}"
       GRAYLOG_REPORT_DISABLE_SANDBOX: "true"
     ports:
       - "9000:9000"
