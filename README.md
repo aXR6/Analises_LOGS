@@ -101,7 +101,7 @@ log = {
 result = classifier(log)
 print(result)  # ex: {'label': 'Scanning', 'score': 0.87}
 ```
-O dispositivo de rede utilizado na captura é configurado em `NET_INTERFACE` e é possível enviar eventos para análise utilizando o mesmo modelo de logs, armazenando o resultado em `network_analysis` e `analyzed_network_events`.
+O dispositivo de rede utilizado na captura é configurado em `NET_INTERFACE` e é possível enviar eventos para análise utilizando o mesmo modelo de logs, armazenando o resultado em `network_analysis` e `analyzed_network_events`. Se a variável `GRAYLOG_URL` estiver definida, cada evento classificado também será enviado ao Graylog no formato GELF.
 
 ## Integração com Graylog
 O projeto disponibiliza um `docker-compose.yml` na raiz com todos os serviços necessários para executar o Graylog Community (MongoDB e Elasticsearch). Ele reutiliza o PostgreSQL já configurado através das variáveis presentes no `.env`. Defina em `GRAYLOG_ROOT_USERNAME` e `GRAYLOG_ROOT_PASSWORD_SHA2` as credenciais do administrador. Para iniciar execute:
@@ -127,7 +127,8 @@ normalmente.
 
 Com o Graylog em execução, defina a variável `GRAYLOG_URL` no `.env` (por
 padrão `http://localhost:12201/gelf`) para que o coletor envie cada registro
-processado diretamente para o Graylog utilizando o formato GELF.
+processado e os eventos de tráfego de rede diretamente para o Graylog utilizando
+o formato GELF.
 
 
 ### Configurando inputs
