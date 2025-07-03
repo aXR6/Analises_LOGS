@@ -1,59 +1,83 @@
 version: '3.8'
+
 services:
-  mongo:
-    image: mongo:6.0
-    container_name: graylog_mongo
+  mongodb:
+    image: mongo:6.0.18
+    container_name: mongodb
+    restart: on-failure
     volumes:
-      - mongo_data:/data/db
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
     networks:
       - graylog
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
-    container_name: elasticsearch
+  opensearch:
+    image: opensearchproject/opensearch:2.15.0
+    container_name: opensearch
+    restart: on-failure
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - discovery.type=single-node
+      - action.auto_create_index=false
+      - plugins.security.ssl.http.enabled=false
+      - plugins.security.disabled=true
+      # Troque a senha abaixo por uma segura
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=superSenhaComplexa123!
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
     ports:
       - "9200:9200"
+      - "9300:9300"
     volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - opensearch_data:/usr/share/opensearch/data
     networks:
       - graylog
 
   graylog:
-    image: graylog/graylog:5.2
+    image: graylog/graylog-enterprise:6.1
     container_name: graylog
+    restart: on-failure
     depends_on:
-      - mongo
-      - elasticsearch
+      mongodb:
+        condition: service_started
+      opensearch:
+        condition: service_started
+    entrypoint: >
+      /usr/bin/tini -- wait-for-it opensearch:9200 --
+      /docker-entrypoint.sh
     environment:
-      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
-      - GRAYLOG_ROOT_PASSWORD_SHA2=e3afed0047b08059d0fada10f400c1e5af3403e1ff8eb44b4fa8d13d40e86b35
-      - GRAYLOG_HTTP_EXTERNAL_URI=http://localhost:9000/
-      - GRAYLOG_MONGODB_URI=mongodb://mongo:27017/graylog
-      - GRAYLOG_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - PG_HOST=${PG_HOST}
-      - PG_PORT=${PG_PORT}
-      - PG_DB=${PG_DB}
-      - PG_USER=${PG_USER}
-      - PG_PASS=${PG_PASS}
-    volumes:
-      - ./Graylog/graylog.conf:/usr/share/graylog/data/config/graylog.conf
-      - ./Graylog/postgres_input.conf:/etc/graylog/postgres_input.conf
-    networks:
-      - graylog
-    restart: always
+      GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:9000"
+      GRAYLOG_HTTP_EXTERNAL_URI: "http://localhost:9000/"
+      GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+      GRAYLOG_ELASTICSEARCH_HOSTS: "http://opensearch:9200"
+      GRAYLOG_PASSWORD_SECRET: "muitoseguraepepper1234567890"
+      # Coloque o SHA2 da senha do admin:
+      # unix: echo -n "admin123" | sha256sum | cut -d " " -f1
+      GRAYLOG_ROOT_PASSWORD_SHA2: "superSenhaComplexa123!"
+      GRAYLOG_REPORT_DISABLE_SANDBOX: "true"
     ports:
       - "9000:9000"
-      - "12201:12201/udp"
       - "1514:1514"
-
-volumes:
-  mongo_data:
-  esdata:
+      - "1514:1514/udp"
+      - "12201:12201"
+      - "12201:12201/udp"
+    volumes:
+      - graylog_journal:/usr/share/graylog/data
+    networks:
+      - graylog
 
 networks:
   graylog:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  mongodb_config:
+  opensearch_data:
+  graylog_journal:
