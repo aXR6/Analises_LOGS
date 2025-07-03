@@ -24,6 +24,9 @@ DB_PASSWORD = _require_env("PG_PASS")
 # URL de conexao com o Elasticsearch
 ES_URL = os.getenv("ES_URL", "http://localhost:9200")
 
+# URL do input GELF do Graylog
+GRAYLOG_URL = os.getenv("GRAYLOG_URL")
+
 LOG_FILE = Path(os.getenv("LOG_FILE", "rsyslog.log"))
 
 SEVERITY_MODEL = _require_env("SEVERITY_MODEL")

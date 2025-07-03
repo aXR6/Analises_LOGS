@@ -40,7 +40,7 @@ Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco PostgreSQL
    ```bash
    pip install -r requirements.txt
    ```
-3. Copie `.env.example` para `.env` e preencha as credenciais do banco e o endereço do Elasticsearch.
+3. Copie `.env.example` para `.env` e preencha as credenciais do banco, o endereço do Elasticsearch e o `GRAYLOG_URL` caso queira encaminhar os eventos para o Graylog.
 4. Crie o banco de dados e aplique o script `schema.sql`.
 5. Ajuste o `rsyslog` conforme [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) para registrar os eventos em `rsyslog.log` (ou caminho definido em `LOG_FILE`).
 
@@ -124,6 +124,10 @@ graylog:
 
 Com esse ajuste o arquivo é criado corretamente e o serviço passa a iniciar
 normalmente.
+
+Com o Graylog em execução, defina a variável `GRAYLOG_URL` no `.env` (por
+padrão `http://localhost:12201/gelf`) para que o coletor envie cada registro
+processado diretamente para o Graylog utilizando o formato GELF.
 
 
 ### Configurando inputs

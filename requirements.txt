@@ -11,3 +11,4 @@ bitsandbytes
 accelerate
 protobuf
 elasticsearch
+requests

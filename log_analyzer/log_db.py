@@ -1,5 +1,6 @@
 import psycopg2
 from typing import Iterable, Tuple, Any
+from datetime import datetime
 
 from .config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 
@@ -156,6 +157,25 @@ class LogDB:
                     "semantic_outlier": semantic_outlier,
                 },
             )
+        except Exception:
+            pass
+
+        try:
+            from .graylog_client import send_gelf
+
+            gelf = {
+                "version": "1.1",
+                "host": host,
+                "short_message": message,
+                "timestamp": datetime.fromisoformat(timestamp).timestamp(),
+                "_program": program,
+                "_category": category,
+                "_severity": severity,
+                "_anomaly_score": anomaly_score,
+                "_malicious": malicious,
+                "_semantic_outlier": semantic_outlier,
+            }
+            send_gelf(gelf)
         except Exception:
             pass
 
