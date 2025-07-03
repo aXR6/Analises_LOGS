@@ -85,7 +85,7 @@ Todas as variáveis podem ser exportadas no ambiente ou definidas diretamente no
    python -m log_analyzer.web_panel
    ```
    Ela ficará disponível em `http://localhost:5000` com filtros de severidade, busca textual e contadores gerais. Novos registros aparecem em tempo real com um indicativo de atividade. Na aba "Tráfego de rede" são exibidos os eventos classificados pelo NIDS.
-4. Você pode utilizar `python menu.py` para iniciar e parar os serviços a partir de um menu interativo, além de alternar entre **CPU** e **GPU** ou selecionar a interface de rede.
+4. O contêiner inicia automaticamente o coletor, o sniffer e o NIDS utilizando a rede do host. Caso prefira um controle manual, execute `python menu.py` para iniciar e parar os serviços, alternar entre **CPU** e **GPU** ou selecionar a interface de rede.
 
 ## Personalizando Modelos
 Os nomes dos modelos de IA podem ser alterados facilmente pelas variáveis do `.env`. Utilize `SEVERITY_MODEL` e `ANOMALY_MODEL` para classificadores de logs, `SEMANTIC_MODEL` para detecção semântica, `NIDS_MODEL` para tráfego de rede e `HUGGINGFACE_MODEL` para análises pontuais via LLM. Ajuste `ANOMALY_THRESHOLD` para calibrar a pontuação considerada suspeita.

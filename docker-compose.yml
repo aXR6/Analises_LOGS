@@ -88,8 +88,7 @@ services:
         condition: service_started
     volumes:
       - .:/app
-    networks:
-      - graylog
+    network_mode: host
 
 networks:
   graylog:
