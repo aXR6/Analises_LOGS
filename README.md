@@ -138,3 +138,4 @@ docker compose up -d
 A interface ficará em `http://localhost:9000` e parâmetros adicionais são definidos em `Graylog/graylog.conf`. Caso o contêiner apresente erro ao gravar o **Node ID**, ajuste `GRAYLOG_NODE_ID_FILE` conforme descrito em [docs/graylog_node_id.md](docs/graylog_node_id.md).
 
 Com o Graylog em execução, defina `GRAYLOG_URL` (padrão `http://localhost:12201/gelf`) para que o coletor e o NIDS enviem cada registro processado. Para criar um input GELF HTTP siga o guia em [docs/graylog_inputs.md](docs/graylog_inputs.md).
+Para montar um painel de visualização, consulte [docs/graylog_dashboard.md](docs/graylog_dashboard.md).
