@@ -1,35 +1,62 @@
-# Análise de Logs com rsyslog
+# Análise Inteligente de Logs
 
-Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco PostgreSQL e disponibiliza dois painéis de monitoramento. As mensagens também são indexadas no **Elasticsearch** para consultas rápidas. A severidade e a pontuação de anomalia dos eventos são classificadas por modelos configuráveis, permitindo identificar comportamentos suspeitos de maneira automática.
+Este repositório contém uma solução completa para ingestão, classificação e monitoramento de logs gerados pelo `rsyslog`. O objetivo é identificar eventos suspeitos de maneira automática, armazená-los em um banco PostgreSQL e disponibilizar diferentes painéis de visualização. As mensagens também são indexadas no **Elasticsearch** para buscas rápidas e podem ser encaminhadas ao Graylog para correlação externa.
 
 ## Sumário
+- [Visão Geral](#visão-geral)
 - [Funcionalidades](#funcionalidades)
+- [Arquitetura e Funcionamento](#arquitetura-e-funcionamento)
+- [Configuração](#configuração)
 - [Requisitos](#requisitos)
-- [Instalação](#instala%c3%a7%c3%a3o)
+- [Instalação](#instalação)
 - [Uso](#uso)
-- [Personalizando modelos](#personalizando-modelos)
-- [Estrutura de diretórios](#estrutura-de-diret%c3%b3rios)
+- [Personalizando Modelos](#personalizando-modelos)
+- [Estrutura de Diretórios](#estrutura-de-diretórios)
 - [Alertas](#alertas)
-- [Detecção de Anomalias Semânticas](#detec%c3%a7%c3%a3o-de-anomalias-sem%c3%a2nticas)
-- [Análise com modelos LLM](#an%c3%a1lise-com-modelos-llm)
-- [Monitoramento de Tráfego de Rede](#monitoramento-de-tr%c3%a1fego-de-rede)
-- [Integração com Graylog](#integra%c3%a7%c3%a3o-com-graylog)
+- [Detecção de Anomalias Semânticas](#detecção-de-anomalias-semânticas)
+- [Análise com Modelos LLM](#análise-com-modelos-llm)
+- [Monitoramento de Tráfego de Rede](#monitoramento-de-tráfego-de-rede)
+- [Integração com Graylog](#integração-com-graylog)
+
+## Visão Geral
+O projeto lê continuamente o arquivo de log definido em `LOG_FILE`, aplica um parser simples e registra cada linha em tabelas PostgreSQL. Em seguida, as entradas são classificadas conforme severidade e grau de anomalia por modelos de IA configuráveis. Todos os registros ficam disponíveis em dois painéis de monitoramento: um de terminal, utilizando a biblioteca `rich`, e outro via web com Flask. Há ainda suporte para enviar os eventos para o Graylog e para o Elasticsearch, permitindo consultas e correlação em tempo real.
 
 ## Funcionalidades
-- Coleta de logs via `rsyslog` e armazenamento em PostgreSQL.
-- Indexação das mensagens no Elasticsearch.
-- Painel de terminal utilizando a biblioteca `rich`.
-- Painel web simples com Flask.
-- Sistema de alertas para termos suspeitos (*denied*, *attack*, *malware*).
-- Classificação de severidade e detecção de anomalias através de modelos definidos no `.env`.
-- Análise opcional de entradas com modelos de linguagem (LLM) da Hugging Face.
-- Monitoramento de tráfego de rede baseado em modelo NIDS.
+- Coleta de logs do `rsyslog` e gravação em banco de dados.
+- Classificação de severidade e detecção de anomalias utilizando modelos indicados no `.env`.
+- Indexação opcional das mensagens no Elasticsearch.
+- Painel de terminal com destaques coloridos e atualização em tempo real.
+- Painel web simples com filtros, busca textual e contadores de severidade.
+- Geração de alertas para termos suspeitos (*denied*, *attack*, *malware*).
+- Monitoramento de tráfego de rede classificado por modelo NIDS.
+- Possibilidade de análise individual de registros via modelos de linguagem (LLM).
+
+## Arquitetura e Funcionamento
+1. **Coletor (`collector.py`)**: observa o arquivo de log do rsyslog e envia cada linha para o parser.
+2. **Parser (`log_parser.py`)**: extrai campos importantes (timestamp, hostname, programa, mensagem) e normaliza os dados.
+3. **Banco de dados (`log_db.py`)**: armazena logs, anomalias e análises complementares em tabelas PostgreSQL criadas a partir de `schema.sql`.
+4. **Classificadores**: modelos configurados via `.env` avaliam a severidade e o grau de anomalia de cada entrada.
+5. **Indexação (`es_client.py`)**: os registros também são enviados ao Elasticsearch para busca e agregações.
+6. **Painéis**: `tui_panel.py` exibe um painel em terminal e `web_panel.py` oferece uma interface web simples.
+7. **Integrações**: se `GRAYLOG_URL` estiver definido, cada evento é encaminhado ao Graylog no formato GELF. O projeto também inclui scripts para análise semântica, uso de LLMs e monitoramento de rede (`net_sniffer.py`).
+
+## Configuração
+Crie um arquivo `.env` baseado em `.env.example` e defina as variáveis principais:
+
+- **Credenciais do PostgreSQL:** `PG_HOST`, `PG_PORT`, `PG_DB`, `PG_USER` e `PG_PASS`.
+- **Elasticsearch:** `ES_URL` com o endereço do cluster.
+- **Graylog (opcional):** `GRAYLOG_URL` para envio de eventos e variáveis de admin (`GRAYLOG_ROOT_USERNAME`, `GRAYLOG_ROOT_PASSWORD_SHA2`).
+- **Modelos de IA:** `SEVERITY_MODEL`, `ANOMALY_MODEL`, `SEMANTIC_MODEL`, `NIDS_MODEL` e `HUGGINGFACE_MODEL`.
+- **Arquivos monitorados:** `LOG_FILE` e `NET_LOG_FILE` (para o NIDS), além de `NET_INTERFACE` se utilizar captura direta de rede.
+- **Outros ajustes:** `ANOMALY_THRESHOLD`, `DEVICE_TYPE` para seleção de CPU ou GPU e `LLM_PROMPT` para análises via linguagem natural.
+
+Todas as variáveis podem ser exportadas no ambiente ou definidas diretamente no `.env` antes de iniciar os módulos.
 
 ## Requisitos
 - Python 3.8 ou superior.
 - Dependências listadas em `requirements.txt` (inclui `bitsandbytes` para modelos quantizados).
-- Uma instância do **Elasticsearch** acessível no endereço configurado em `ES_URL`.
-- Banco PostgreSQL disponível para receber as tabelas definidas em `schema.sql`.
+- Instância do **Elasticsearch** acessível pelo endereço configurado em `ES_URL`.
+- Banco PostgreSQL disponível para receber as tabelas de `schema.sql`.
 
 ## Instalação
 1. Clone o repositório e acesse a pasta do projeto:
@@ -40,96 +67,74 @@ Este projeto coleta logs gerados pelo `rsyslog`, armazena em um banco PostgreSQL
    ```bash
    pip install -r requirements.txt
    ```
-3. Copie `.env.example` para `.env` e preencha as credenciais do banco, o endereço do Elasticsearch e o `GRAYLOG_URL` caso queira encaminhar os eventos para o Graylog.
+3. Copie `.env.example` para `.env` e ajuste as credenciais e os nomes dos modelos conforme desejado.
 4. Crie o banco de dados e aplique o script `schema.sql`.
-5. Ajuste o `rsyslog` conforme [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) para registrar os eventos em `rsyslog.log` (ou caminho definido em `LOG_FILE`).
+5. Configure o `rsyslog` seguindo as dicas em [docs/rsyslog_optimization.md](docs/rsyslog_optimization.md) para direcionar as mensagens ao arquivo definido em `LOG_FILE`.
 
 ## Uso
-1. Inicie o coletor que lê continuamente o arquivo de log e popula o banco:
+1. Inicie o coletor para popular o banco de dados:
    ```bash
    python -m log_analyzer.collector
    ```
-2. Para visualizar os registros no terminal:
+2. Abra o painel em terminal:
    ```bash
    python -m log_analyzer.tui_panel
    ```
-   Alertas críticos são destacados em vermelho e as atualizações ocorrem em tempo real.
-3. Para acessar pelo navegador:
+3. Acesse a interface web:
    ```bash
    python -m log_analyzer.web_panel
    ```
-   A aplicação ficará disponível em `http://localhost:5000` com paginação de 100 registros, filtros por severidade e busca textual utilizando o Elasticsearch. O nome do programa é exibido e pode ser usado como filtro ao clicar. Quando novos registros chegam, um balão "+1" indica atividade recente. A barra superior mostra os totais por severidade e, na aba "Tráfego de rede", exibe também a contagem de eventos classificados pelo NIDS.
-4. Opcionalmente execute `python menu.py` para controlar todas as funções a partir de um menu interativo (incluindo troca entre **CPU** e **GPU** e seleção da interface de rede).
+   Ela ficará disponível em `http://localhost:5000` com filtros de severidade, busca textual e contadores gerais. Novos registros aparecem em tempo real com um indicativo de atividade. Na aba "Tráfego de rede" são exibidos os eventos classificados pelo NIDS.
+4. Você pode utilizar `python menu.py` para iniciar e parar os serviços a partir de um menu interativo, além de alternar entre **CPU** e **GPU** ou selecionar a interface de rede.
 
-## Personalizando modelos
-Os nomes dos modelos podem ser alterados através das variáveis no `.env`. Utilize `SEVERITY_MODEL` e `ANOMALY_MODEL` para definir classificadores e `ANOMALY_THRESHOLD` para ajustar o ponto de corte. Outros modelos, como `SEMANTIC_MODEL`, `HUGGINGFACE_MODEL` e `NIDS_MODEL`, seguem a mesma lógica e permitem trocar facilmente a inteligência utilizada.
+## Personalizando Modelos
+Os nomes dos modelos de IA podem ser alterados facilmente pelas variáveis do `.env`. Utilize `SEVERITY_MODEL` e `ANOMALY_MODEL` para classificadores de logs, `SEMANTIC_MODEL` para detecção semântica, `NIDS_MODEL` para tráfego de rede e `HUGGINGFACE_MODEL` para análises pontuais via LLM. Ajuste `ANOMALY_THRESHOLD` para calibrar a pontuação considerada suspeita.
 
-## Estrutura de diretórios
-- `log_analyzer/` – código fonte principal.
-- `rsyslog.log` – arquivo monitorado pelo coletor (configurável via `.env`).
+## Estrutura de Diretórios
+- `log_analyzer/` – código-fonte principal com todos os módulos.
+- `rsyslog.log` – arquivo monitorado pelo coletor (caminho definido em `LOG_FILE`).
 - `schema.sql` – definição das tabelas PostgreSQL.
 - `.env.example` – modelo de configuração do ambiente.
+- `Graylog/` – arquivos utilizados pelo `docker-compose.yml` para iniciar o Graylog.
+- `docs/` – documentação complementar com dicas de configuração.
 - `logs` – índice Elasticsearch contendo os eventos processados.
 
 ## Alertas
-Linhas contendo termos suspeitos são marcadas como **MALICIOUS** e geram alerta imediato no terminal. O tipo de ataque identificado fica visível no painel web, juntamente com as ocorrências mais recentes. Mensagens cujo `anomaly_score` ultrapassa o valor de `ANOMALY_THRESHOLD` também são consideradas suspeitas.
+Linhas que contenham termos suspeitos são marcadas como **MALICIOUS** e geram alerta imediato nos painéis. Eventos cujo `anomaly_score` ultrapassa `ANOMALY_THRESHOLD` também são destacados e podem ser encaminhados ao Graylog.
 
 ## Detecção de Anomalias Semânticas
-Para encontrar padrões incomuns no texto dos logs utilize:
+Para localizar padrões incomuns no texto dos logs execute:
 ```bash
 python -m log_analyzer.semantic_anomaly caminho/para/arquivo.log
 ```
-Entradas rotuladas com o cluster `-1` serão tratadas como anomalias.
+Entradas rotuladas com o cluster `-1` serão tratadas como anomalias e podem ser revisadas separadamente.
 
-## Análise com modelos LLM
-É possível enviar um registro específico para análise por um modelo da Hugging Face. Defina `HUGGINGFACE_MODEL`, `DEVICE_TYPE` e `LLM_PROMPT` no `.env` e execute:
+## Análise com Modelos LLM
+Registros específicos podem ser analisados por um modelo de linguagem da Hugging Face. Configure `HUGGINGFACE_MODEL`, `DEVICE_TYPE` e `LLM_PROMPT` e rode:
 ```bash
 python -m log_analyzer.llm_analysis ID_DO_LOG
 ```
-O resultado é gravado nas tabelas `log_analysis` e `analyzed_logs` e pode ser consultado pelo painel web.
+O resultado fica disponível nas tabelas `log_analysis` e `analyzed_logs` e também pode ser consultado pelo painel web.
 
 ## Monitoramento de Tráfego de Rede
-Um monitor adicional utiliza o modelo definido em `NIDS_MODEL` para classificar eventos de rede (DoS, Port Scan, Brute Force, etc.). As entradas ficam registradas na tabela `network_events` e podem ser acompanhadas na aba "Tráfego de rede" do painel web. A integração básica pode ser feita com a biblioteca `transformers`:
+O módulo `net_sniffer.py` pode capturar eventos de rede e utilizar o modelo `NIDS_MODEL` para classificá-los (DoS, Port Scan, Brute Force, etc.). As entradas são salvas em `network_events` e visualizadas na aba "Tráfego de rede" do painel web. A integração básica pode seguir o exemplo abaixo:
 ```python
 from transformers import pipeline
 import os
 
 classifier = pipeline("text-classification", model=os.getenv("NIDS_MODEL"))
 log = {
-    # características do fluxo IoT ou rede transformadas em JSON ou vetores
+    # características do fluxo de rede ou IoT transformadas em JSON
 }
-result = classifier(log)
-print(result)  # ex: {'label': 'Scanning', 'score': 0.87}
+print(classifier(log))
 ```
-O dispositivo de rede utilizado na captura é configurado em `NET_INTERFACE` e é possível enviar eventos para análise utilizando o mesmo modelo de logs, armazenando o resultado em `network_analysis` e `analyzed_network_events`. Se a variável `GRAYLOG_URL` estiver definida, cada evento classificado também será enviado ao Graylog no formato GELF.
+Se `GRAYLOG_URL` estiver configurado, cada evento classificado também será enviado para o Graylog em formato GELF.
 
 ## Integração com Graylog
-O projeto disponibiliza um `docker-compose.yml` na raiz com todos os serviços necessários para executar o Graylog Community (MongoDB e Elasticsearch). Ele reutiliza o PostgreSQL já configurado através das variáveis presentes no `.env`. Defina em `GRAYLOG_ROOT_USERNAME` e `GRAYLOG_ROOT_PASSWORD_SHA2` as credenciais do administrador. Para iniciar execute:
-
+O repositório inclui um `docker-compose.yml` que sobe o Graylog Community juntamente com MongoDB e Elasticsearch reutilizando o mesmo PostgreSQL configurado no `.env`. Defina `GRAYLOG_ROOT_USERNAME` e `GRAYLOG_ROOT_PASSWORD_SHA2` para iniciar:
 ```bash
 docker compose up -d
 ```
+A interface ficará em `http://localhost:9000` e parâmetros adicionais são definidos em `Graylog/graylog.conf`. Caso o contêiner apresente erro ao gravar o **Node ID**, ajuste `GRAYLOG_NODE_ID_FILE` conforme descrito em [docs/graylog_node_id.md](docs/graylog_node_id.md).
 
-A interface ficará disponível em `http://localhost:9000` e os parâmetros adicionais estão definidos em `Graylog/graylog.conf`.
-
-Caso o contêiner reinicie com erro de permissão ao persistir o **Node ID** do
-Graylog, defina `GRAYLOG_NODE_ID_FILE` para um local gravável. Um exemplo é
-`/usr/share/graylog/data/config/node-id`, que já possui permissões adequadas:
-
-```yaml
-graylog:
-  environment:
-    - GRAYLOG_NODE_ID_FILE=/usr/share/graylog/data/config/node-id
-```
-
-Com esse ajuste o arquivo é criado corretamente e o serviço passa a iniciar
-normalmente.
-
-Com o Graylog em execução, defina a variável `GRAYLOG_URL` no `.env` (por
-padrão `http://localhost:12201/gelf`) para que o coletor envie cada registro
-processado e os eventos de tráfego de rede diretamente para o Graylog utilizando
-o formato GELF.
-
-
-### Configurando inputs
-Para que o Graylog receba os registros processados, crie um input GELF HTTP conforme o passo a passo em [docs/graylog_inputs.md](docs/graylog_inputs.md). Os eventos podem então ser enviados para `http://localhost:12201/gelf` contendo os campos gerados pela IA.
+Com o Graylog em execução, defina `GRAYLOG_URL` (padrão `http://localhost:12201/gelf`) para que o coletor e o NIDS enviem cada registro processado. Para criar um input GELF HTTP siga o guia em [docs/graylog_inputs.md](docs/graylog_inputs.md).
