@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mongodb:
     image: mongo:6.0.18
@@ -41,7 +39,7 @@ services:
 
   graylog:
     # Versão Community do Graylog
-    image: graylog/graylog:6.1
+    image: graylog/graylog:6.3.0 
     container_name: graylog
     restart: on-failure
     depends_on:
@@ -75,20 +73,20 @@ services:
     networks:
       - graylog
 
-  analises_logs:
-    build: .
-    container_name: analises_logs
-    restart: on-failure
-    env_file:
-      - .env
-    depends_on:
-      opensearch:
-        condition: service_started
-      mongodb:
-        condition: service_started
-    volumes:
-      - .:/app
-    network_mode: host
+#  analises_logs:
+#    build: .
+#    container_name: analises_logs
+#    restart: on-failure
+#    env_file:
+#      - .env
+#    depends_on:
+#      opensearch:
+#        condition: service_started
+#      mongodb:
+#        condition: service_started
+#    volumes:
+#      - .:/app
+#    network_mode: host
 
 networks:
   graylog:
