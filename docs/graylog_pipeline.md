@@ -16,9 +16,10 @@ Este documento descreve os passos para criar e aplicar um **Pipeline** no Graylo
 ```pseudocode
 rule "parse_logs"
 when
-  has_field("message")
+  has_field("message") && regex("service=\\w+", to_string($message.message)).matches
 then
-  set_field("source_service", regex("service=(\\w+)", to_string($message.message)).group[1]);
+  let svc = regex("service=(\\w+)", to_string($message.message));
+  set_field("source_service", svc.group[1]);
 end
 ```
 
@@ -37,17 +38,22 @@ then
   let svc = regex("service=(\\w+)", msg);
   let ip  = regex("(\d+\.\d+\.\d+\.\d+)\.(\d+) > (\d+\.\d+\.\d+\.\d+)\.(\d+)", msg);
   let proto = regex("proto=(\w+)", msg);
-  set_field("source_service", svc.matches ? svc.group[1] : null);
-  set_field("src_ip", ip.matches ? ip.group[1] : null);
-  set_field("src_port", ip.matches ? ip.group[2] : null);
-  set_field("dst_ip", ip.matches ? ip.group[3] : null);
-  set_field("dst_port", ip.matches ? ip.group[4] : null);
-  set_field("protocol", proto.matches ? proto.group[1] : null);
+  set_fields(fields: {
+    source_service: svc.matches ? svc.group[1] : null,
+    src_ip: ip.matches ? ip.group[1] : null,
+    src_port: ip.matches ? ip.group[2] : null,
+    dst_ip: ip.matches ? ip.group[3] : null,
+    dst_port: ip.matches ? ip.group[4] : null,
+    protocol: proto.matches ? proto.group[1] : null
+  });
 end
 ```
 
 Com ela o Graylog adiciona campos estruturados para os pacotes de rede,
-facilitando buscas e o cruzamento com as demais informações de log.
+facilitando buscas e o cruzamento com as demais informações de log. As
+regras utilizadas neste guia estão disponíveis em
+`Graylog/pipeline_rules.conf` e podem ser importadas diretamente na
+interface do Graylog.
 
 ## 3. Criar o Pipeline
 
