@@ -124,3 +124,7 @@ graylog:
 
 Com esse ajuste o arquivo é criado corretamente e o serviço passa a iniciar
 normalmente.
+
+
+### Configurando inputs
+Para que o Graylog receba os registros processados, crie um input GELF HTTP conforme o passo a passo em [docs/graylog_inputs.md](docs/graylog_inputs.md). Os eventos podem então ser enviados para `http://localhost:12201/gelf` contendo os campos gerados pela IA.
