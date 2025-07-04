@@ -2,9 +2,39 @@
 {% block content %}
 <h2 class="mb-4">Registros Analisados</h2>
 <h5>Logs</h5>
-<div id="analyzed-log-list" class="list-group mb-4"></div>
+<div class="table-responsive mb-4">
+  <table class="table table-sm table-striped align-middle">
+    <thead>
+      <tr>
+        <th>ID Original</th>
+        <th>Timestamp</th>
+        <th>Mensagem</th>
+        <th>Programa</th>
+        <th>Severidade</th>
+        <th>Anomalia</th>
+        <th>Resumo</th>
+      </tr>
+    </thead>
+    <tbody id="analyzed-log-list"></tbody>
+  </table>
+</div>
 <h5>Pacotes de Rede</h5>
-<div id="analyzed-net-list" class="list-group"></div>
+<div class="table-responsive">
+  <table class="table table-sm table-striped align-middle">
+    <thead>
+      <tr>
+        <th>ID Evento</th>
+        <th>Timestamp</th>
+        <th>Mensagem</th>
+        <th>Módulo</th>
+        <th>Classificação</th>
+        <th>Score</th>
+        <th>Resumo</th>
+      </tr>
+    </thead>
+    <tbody id="analyzed-net-list"></tbody>
+  </table>
+</div>
 <script>
 async function fetchAnalyzed(page=1) {
   const respLogs = await fetch('/api/analyzed?page='+page);
@@ -17,32 +47,28 @@ async function fetchAnalyzed(page=1) {
   listLogs.innerHTML = '';
   listNet.innerHTML = '';
   for (const row of dataLogs.logs) {
-    const item = document.createElement('div');
-    item.className = 'list-group-item small';
-    item.innerHTML = `
-        <div><strong>ID Original:</strong> ${row[0]} - <strong>${row[1]}</strong></div>
-        <div class="d-flex flex-wrap gap-2">
-          <span><strong>Programa:</strong> ${row[3]}</span>
-          <span><strong>Severidade:</strong> ${row[6]}</span>
-          <span><strong>Anomalia:</strong> ${row[7].toFixed(2)}</span>
-        </div>
-        <div class="text-break">${row[4]}</div>
-        <div class="mt-1"><strong>Resumo:</strong> ${row[10]}</div>`;
-    listLogs.appendChild(item);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row[0]}</td>
+      <td>${row[1]}</td>
+      <td class="text-break">${row[4]}</td>
+      <td>${row[3]}</td>
+      <td>${row[6]}</td>
+      <td>${row[7].toFixed(2)}</td>
+      <td>${row[10]}</td>`;
+    listLogs.appendChild(tr);
   }
   for (const row of dataNet.events) {
-    const item = document.createElement('div');
-    item.className = 'list-group-item small';
-    item.innerHTML = `
-        <div><strong>ID Evento:</strong> ${row[0]} - <strong>${row[1]}</strong></div>
-        <div class="d-flex flex-wrap gap-2">
-          <span><strong>Modulo:</strong> ${row[5] || 'desconhecido'}</span>
-          <span><strong>Classificação:</strong> ${row[3]}</span>
-          <span><strong>Score:</strong> ${row[4].toFixed(2)}</span>
-        </div>
-        <div class="text-break">${row[2]}</div>
-        <div class="mt-1"><strong>Resumo:</strong> ${row[6]}</div>`;
-    listNet.appendChild(item);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row[0]}</td>
+      <td>${row[1]}</td>
+      <td class="text-break">${row[2]}</td>
+      <td>${row[5] || 'desconhecido'}</td>
+      <td>${row[3]}</td>
+      <td>${row[4].toFixed(2)}</td>
+      <td>${row[6]}</td>`;
+    listNet.appendChild(tr);
   }
 }
 fetchAnalyzed();

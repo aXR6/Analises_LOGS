@@ -24,7 +24,22 @@
     <a href="?page={{ page+1 }}{% if source %}&source={{ source }}{% endif %}" class="btn btn-sm btn-secondary">Próximo</a>
   </div>
 </div>
-<div id="net-list" class="list-group"></div>
+<div class="table-responsive">
+  <table class="table table-sm table-striped align-middle">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Timestamp</th>
+        <th>Mensagem</th>
+        <th>Classificação</th>
+        <th>Score</th>
+        <th>Módulo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="net-list"></tbody>
+  </table>
+</div>
 <!-- Modal reuse -->
 <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -54,30 +69,19 @@ async function fetchNetwork(page=startPage) {
   const list = document.getElementById('net-list');
   list.innerHTML = '';
   for (const row of data.events) {
-    const item = document.createElement('div');
-    item.className = 'list-group-item small d-flex flex-column flex-lg-row justify-content-between gap-2';
+    const tr = document.createElement('tr');
     if (row[3].toLowerCase() !== 'normal') {
-      // Use a warning background for suspicious events to avoid very strong
-      // colors when many entries are present
-      item.classList.add('list-group-item-warning');
+      tr.classList.add('table-warning');
     }
-    item.innerHTML = `
-        <div class="flex-grow-1">
-          <div class="d-flex flex-wrap gap-2">
-            <span><strong>ID:</strong> ${row[0]}</span>
-            <span><strong>${row[1]}</strong></span>
-            <span><strong>Modulo:</strong> <a href="?source=${row[5]}">${row[5] || 'desconhecido'}</a></span>
-          </div>
-          <div class="d-flex flex-wrap gap-2">
-            <span class="${labelClass(row[3])}">${row[3]}</span>
-            <span><strong>Score:</strong> ${row[4].toFixed(2)}</span>
-          </div>
-          <div class="text-break">${row[2]}</div>
-        </div>
-        <div class="mt-2 mt-lg-0">
-          <button class="btn btn-sm btn-outline-primary" onclick="analyzeNet(${row[0]})">Analisar</button>
-        </div>`;
-    list.appendChild(item);
+    tr.innerHTML = `
+      <td>${row[0]}</td>
+      <td>${row[1]}</td>
+      <td class="text-break">${row[2]}</td>
+      <td class="${labelClass(row[3])}">${row[3]}</td>
+      <td>${row[4].toFixed(2)}</td>
+      <td><a href="?source=${row[5]}">${row[5] || 'desconhecido'}</a></td>
+      <td><button class="btn btn-sm btn-outline-primary" onclick="analyzeNet(${row[0]})">Analisar</button></td>`;
+    list.appendChild(tr);
   }
 }
 

@@ -9,43 +9,40 @@
     <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
 </head>
 <body class="bg-dark text-light">
-<nav id="navbar" class="navbar navbar-expand-lg sticky-top mb-4">
-  <div class="container-fluid">
-<a class="navbar-brand mb-0 h1" href="#">Log Dashboard</a>
-<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
-  <span class="navbar-toggler-icon"></span>
-</button>
-<div class="collapse navbar-collapse" id="navMenu">
-  <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-3">
+<div id="wrapper" class="d-flex">
+<nav id="navbar" class="d-flex flex-column p-3 navbar-dark bg-dark flex-shrink-0">
+  <a class="navbar-brand mb-4" href="#">Log Dashboard</a>
+  <ul class="nav nav-pills flex-column mb-auto gap-2">
     <li class="nav-item position-relative">
-      <a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active{% endif %}">Logs</a>
-      <span id="badge-logs" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+      <a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active{% endif %}">Logs
+        <span id="badge-logs" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+      </a>
     </li>
     <li class="nav-item position-relative">
-      <a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active{% endif %}">Analisados</a>
-      <span id="badge-analyzed" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+      <a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active{% endif %}">Analisados
+        <span id="badge-analyzed" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+      </a>
     </li>
     <li class="nav-item position-relative">
-      <a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active{% endif %}">Tr\u00e1fego de rede</a>
-      <span id="badge-network" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+      <a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active{% endif %}">Tráfego de rede
+        <span id="badge-network" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+      </a>
     </li>
   </ul>
-</div>
-    </div>
-    <div id="toolbar" class="d-flex flex-wrap gap-3 small mt-2 p-2 rounded bg-secondary text-light ms-lg-3">
-      <span id="severity-info"></span>
-      <span id="nids-info"></span>
-      <span id="attack-info"></span>
-      <span id="alert-info" class="text-danger"></span>
-      <span id="iface-info"></span>
-      <button id="theme-toggle" class="btn btn-sm btn-secondary" type="button">
-        <i id="theme-icon" class="bi"></i>
-      </button>
-    </div>
+  <div id="toolbar" class="mt-auto small pt-3">
+    <div class="mb-1"><span id="severity-info"></span></div>
+    <div class="mb-1"><span id="nids-info"></span></div>
+    <div class="mb-1"><span id="attack-info"></span></div>
+    <div class="mb-1 text-danger"><span id="alert-info"></span></div>
+    <div class="mb-2"><span id="iface-info"></span></div>
+    <button id="theme-toggle" class="btn btn-sm btn-outline-secondary w-100" type="button">
+      <i id="theme-icon" class="bi"></i>
+    </button>
   </div>
 </nav>
-<div class="container my-4">
+<div id="content" class="flex-grow-1 p-4">
 {% block content %}{% endblock %}
+</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -99,7 +96,6 @@ setInterval(fetchAlerts, 5000);
 const COUNT_KEY = 'counts';
 let lastCounts = JSON.parse(localStorage.getItem(COUNT_KEY) || '{}');
 let countsReady = Object.keys(lastCounts).length > 0;
-
 async function fetchCounts() {
   const resp = await fetch('/api/counts');
   if (!resp.ok) return;
@@ -123,7 +119,6 @@ async function fetchCounts() {
   }
   localStorage.setItem(COUNT_KEY, JSON.stringify(lastCounts));
 }
-
 fetchCounts();
 setInterval(fetchCounts, 5000);
 const THEME_KEY = 'theme';

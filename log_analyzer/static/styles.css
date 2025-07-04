@@ -13,6 +13,22 @@ body {
 .list-group-item-warning {
   background-color: #8a7330;
 }
+.table-danger {
+  background-color: #843534;
+  color: #fff;
+}
+.table-warning {
+  background-color: #8a7330;
+}
+#navbar {
+  width: 220px;
+}
+#wrapper {
+  min-height: 100vh;
+}
+#content {
+  overflow-x: auto;
+}
 #toolbar span {
   margin-right: 1rem;
 }

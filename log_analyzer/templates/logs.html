@@ -17,29 +17,39 @@
     <a href="?page={{ page+1 }}{% if severity %}&severity={{ severity }}{% endif %}" class="btn btn-sm btn-secondary">Próximo</a>
   </div>
 </div>
-<div id="log-list" class="list-group">
-{% for row in logs %}
-  <div class="list-group-item small d-flex flex-column flex-lg-row justify-content-between gap-2 {% if row[9] or row[10] %}list-group-item-danger{% endif %}">
-    <div class="flex-grow-1">
-      <div class="d-flex flex-wrap gap-2">
-        <span><strong>ID:</strong> {{row[0]}}</span>
-        <span><strong>{{row[2]}}</strong></span>
-        <span><strong>Host:</strong> {{row[3]}}</span>
-        <span><strong>Programa:</strong> <a href="?program={{row[4]}}">{{row[4]}}</a></span>
-      </div>
-      <div class="d-flex flex-wrap gap-2">
-        <span class="{{ severity_colors.get(row[7], '') }}"><strong>{{row[7]}}{{ '*' if row[9] else '' }}</strong></span>
-        <span><strong>Anomalia:</strong> {{ '%.2f' | format(row[8]) }}</span>
-        <span><strong>Semântica:</strong> {{ 'sim' if row[10] else 'nao' }}</span>
-        {% if row[11] %}<span class="badge text-bg-danger">{{ row[11] }}</span>{% endif %}
-      </div>
-      <div class="text-break">{{row[5]}}</div>
-    </div>
-    <div class="mt-2 mt-lg-0">
-      <button class="btn btn-sm btn-outline-primary" onclick="analyzeLog({{row[0]}})">Analisar</button>
-    </div>
-  </div>
-{% endfor %}
+<div class="table-responsive">
+  <table class="table table-sm table-striped align-middle">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Timestamp</th>
+        <th>Host</th>
+        <th>Programa</th>
+        <th>Severidade</th>
+        <th>Anomalia</th>
+        <th>Semântica</th>
+        <th>Ataque</th>
+        <th>Mensagem</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="log-list">
+    {% for row in logs %}
+      <tr class="{% if row[9] or row[10] %}table-danger{% endif %}">
+        <td>{{row[0]}}</td>
+        <td>{{row[2]}}</td>
+        <td>{{row[3]}}</td>
+        <td><a href="?program={{row[4]}}">{{row[4]}}</a></td>
+        <td class="{{ severity_colors.get(row[7],'') }}">{{row[7]}}{{ '*' if row[9] else '' }}</td>
+        <td>{{ '%.2f'|format(row[8]) }}</td>
+        <td>{{ 'sim' if row[10] else 'nao' }}</td>
+        <td>{% if row[11] %}<span class="badge text-bg-danger">{{ row[11] }}</span>{% endif %}</td>
+        <td class="text-break">{{row[5]}}</td>
+        <td><button class="btn btn-sm btn-outline-primary" onclick="analyzeLog({{row[0]}})">Analisar</button></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 </div>
 <!-- Modal -->
 <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
@@ -64,29 +74,20 @@ async function fetchLogs(page = {{ page }}) {
   const list = document.getElementById('log-list');
   list.innerHTML = '';
   for (const row of data.logs) {
-    const item = document.createElement('div');
-    item.className = 'list-group-item small d-flex flex-column flex-lg-row justify-content-between gap-2';
-    if (row[9] || row[10]) item.classList.add('list-group-item-danger');
-    item.innerHTML = `
-        <div class="flex-grow-1">
-          <div class="d-flex flex-wrap gap-2">
-            <span><strong>ID:</strong> ${row[0]}</span>
-            <span><strong>${row[2]}</strong></span>
-            <span><strong>Host:</strong> ${row[3]}</span>
-            <span><strong>Programa:</strong> <a href="?program=${row[4]}">${row[4]}</a></span>
-          </div>
-          <div class="d-flex flex-wrap gap-2">
-            <span class="${severityColors[row[7]] || ''}"><strong>${row[7]}${row[9] ? '*' : ''}</strong></span>
-            <span><strong>Anomalia:</strong> ${row[8].toFixed(2)}</span>
-            <span><strong>Semântica:</strong> ${row[10] ? 'sim' : 'nao'}</span>
-            ${row[11] ? `<span class="badge text-bg-danger">${row[11]}</span>` : ''}
-          </div>
-          <div class="text-break">${row[5]}</div>
-        </div>
-        <div class="mt-2 mt-lg-0">
-          <button class="btn btn-sm btn-outline-primary" onclick="analyzeLog(${row[0]})">Analisar</button>
-        </div>`;
-    list.appendChild(item);
+    const tr = document.createElement('tr');
+    if (row[9] || row[10]) tr.classList.add('table-danger');
+    tr.innerHTML = `
+      <td>${row[0]}</td>
+      <td>${row[2]}</td>
+      <td>${row[3]}</td>
+      <td><a href="?program=${row[4]}">${row[4]}</a></td>
+      <td class="${severityColors[row[7]] || ''}">${row[7]}${row[9] ? '*' : ''}</td>
+      <td>${row[8].toFixed(2)}</td>
+      <td>${row[10] ? 'sim' : 'nao'}</td>
+      <td>${row[11] ? `<span class="badge text-bg-danger">${row[11]}</span>` : ''}</td>
+      <td class="text-break">${row[5]}</td>
+      <td><button class="btn btn-sm btn-outline-primary" onclick="analyzeLog(${row[0]})">Analisar</button></td>`;
+    list.appendChild(tr);
   }
 }
 async function analyzeLog(id) {
