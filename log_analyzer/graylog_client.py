@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any, Mapping
 
 import requests
@@ -14,7 +15,9 @@ def send_gelf(payload: Mapping[str, Any]) -> None:
     try:
         headers = {"Content-Type": "application/json"}
         # requests will raise for non-2xx responses
-        requests.post(GRAYLOG_URL, data=json.dumps(payload), headers=headers, timeout=5).raise_for_status()
-    except Exception:
-        # Ignore failures to avoid breaking the collector
-        pass
+        requests.post(
+            GRAYLOG_URL, data=json.dumps(payload), headers=headers, timeout=5
+        ).raise_for_status()
+    except Exception as exc:  # pragma: no cover - simple logging
+        logging.warning("Failed to send GELF payload to Graylog: %s", exc)
+
