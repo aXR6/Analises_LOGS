@@ -143,6 +143,18 @@ Para transformar ou validar mensagens de forma avançada, veja o guia de pipelin
 Para definir o index set utilizado pelos eventos, veja o modelo sugerido em [docs/graylog_index_model.md](docs/graylog_index_model.md).
 Para criar extratores personalizáveis no input GELF consulte [docs/graylog_extractors.md](docs/graylog_extractors.md).
 
+## Capturas de Tela
+
+A seguir algumas imagens que ilustram o funcionamento dos painéis web e do Graylog:
+
+![Dashboard do Graylog exibindo os eventos enviados](https://i.imgur.com/MZlbJPDh.jpg)
+
+![Aba "Logs" do painel web com filtros e contadores](https://i.imgur.com/6PplOKJh.jpg)
+
+![Aba "Analisados" mostrando registros processados por IA](https://i.imgur.com/oiXsPrnh.jpg)
+
+![Monitoramento de tráfego de rede na interface web](https://i.imgur.com/6b4Hi2Fh.jpg)
+
 ## Documentação complementar
 
 A pasta `docs/` concentra guias que esclarecem dúvidas recorrentes sobre a
