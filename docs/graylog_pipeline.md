@@ -11,26 +11,10 @@ Este documento descreve os passos para criar e aplicar um **Pipeline** no Graylo
 
 1. No menu superior, clique em **System** ➜ **Pipelines**.
 2. Selecione **Manage rules** e clique em **Create rule**.
-3. Defina um nome (ex.: `parse_logs`) e escreva a condicao (`when`) e a acao (`then`). Um exemplo basico:
+3. Defina um nome (ex.: `parse_full_message`) e escreva a condicao (`when`) e a acao (`then`).
 
 ```pseudocode
-rule "parse_logs"
-when
-  has_field("message") && regex("service=\\w+", to_string($message.message)).matches
-then
-  let svc = regex("service=(\\w+)", to_string($message.message));
-  set_field("source_service", svc.group[1]);
-end
-```
-
-Essa regra cria o campo `source_service` ao extrair o valor de `service` da mensagem.
-
-Para eventos de rede enviados pelo `net_sniffer.py` ou ferramentas semelhantes,
-pode ser útil extrair endereços IP, portas e protocolo da linha capturada.
-Uma regra mais completa ficaria assim:
-
-```pseudocode
-rule "parse_network_event"
+rule "parse_full_message"
 when
   has_field("message")
 then
@@ -49,11 +33,7 @@ then
 end
 ```
 
-Com ela o Graylog adiciona campos estruturados para os pacotes de rede,
-facilitando buscas e o cruzamento com as demais informações de log. As
-regras utilizadas neste guia estão disponíveis em
-`Graylog/pipeline_rules.conf` e podem ser importadas diretamente na
-interface do Graylog.
+Essa única regra lida com mensagens gerais e eventos de rede, criando campos estruturados sempre que `service`, endereços IP ou protocolo estiverem presentes. As regras utilizadas neste guia estão disponíveis em `Graylog/pipeline_rules.conf` e podem ser importadas diretamente na interface do Graylog.
 
 ## 3. Criar o Pipeline
 
