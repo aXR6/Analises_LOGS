@@ -23,6 +23,21 @@ body {
 #navbar {
   width: 220px;
 }
+
+@media (min-width: 992px) {
+  #navbar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: flex-start;
+  }
+  #toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+  }
+}
+
 #wrapper {
   min-height: 100vh;
 }
@@ -34,11 +49,4 @@ body {
 }
 .navbar-brand {
   font-weight: 600;
-}
-@media (min-width: 992px) {
-  #toolbar {
-    position: sticky;
-    top: 0;
-    z-index: 1020;
-  }
 }
