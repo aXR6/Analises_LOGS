@@ -11,19 +11,28 @@ Este documento descreve os passos para criar e aplicar um **Pipeline** no Graylo
 
 1. No menu superior, clique em **System** ➜ **Pipelines**.
 2. Selecione **Manage rules** e clique em **Create rule**.
-3. Defina um nome (ex.: `parse_full_message`) e escreva a condicao (`when`) e a acao (`then`).
+3. Crie duas regras: uma para logs gerais (`parse_service_logs`) e outra para eventos de rede (`parse_network_packet`).
 
 ```pseudocode
-rule "parse_full_message"
+rule "parse_service_logs"
 when
   has_field("message")
 then
   let msg = to_string($message.message);
   let svc = regex("service=(\\w+)", msg);
+  set_fields(fields: {
+    source_service: svc.matches ? svc.group[1] : null
+  });
+end
+
+rule "parse_network_packet"
+when
+  has_field("message")
+then
+  let msg = to_string($message.message);
   let ip  = regex("(\d+\.\d+\.\d+\.\d+)\.(\d+) > (\d+\.\d+\.\d+\.\d+)\.(\d+)", msg);
   let proto = regex("proto=(\w+)", msg);
   set_fields(fields: {
-    source_service: svc.matches ? svc.group[1] : null,
     src_ip: ip.matches ? ip.group[1] : null,
     src_port: ip.matches ? ip.group[2] : null,
     dst_ip: ip.matches ? ip.group[3] : null,
@@ -33,7 +42,7 @@ then
 end
 ```
 
-Essa única regra lida com mensagens gerais e eventos de rede, criando campos estruturados sempre que `service`, endereços IP ou protocolo estiverem presentes. As regras utilizadas neste guia estão disponíveis em `Graylog/pipeline_rules.conf` e podem ser importadas diretamente na interface do Graylog.
+Essas duas regras dividem a lógica original, permitindo tratar mensagens de serviço e pacotes de rede separadamente. Todas estão disponíveis em `Graylog/pipeline_rules.conf` e podem ser importadas diretamente na interface do Graylog.
 
 ## 3. Criar o Pipeline
 
