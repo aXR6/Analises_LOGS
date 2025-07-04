@@ -29,12 +29,21 @@
       </a>
     </li>
   </ul>
-  <div id="toolbar" class="mt-auto small pt-3">
-    <div class="mb-1"><strong>Logs:</strong> <span id="severity-info"></span></div>
-    <div class="mb-1"><strong>Tráfego:</strong> <span id="nids-info"></span></div>
-    <div class="mb-1"><strong>Ataques:</strong> <span id="attack-info"></span></div>
-    <div class="mb-1 text-danger"><strong>Alerta:</strong> <span id="alert-info"></span></div>
-    <div class="mb-2"><strong>Interfaces:</strong> <span id="iface-info"></span></div>
+  <div id="toolbar" class="mt-auto small pt-3 d-grid gap-2">
+    <div class="border rounded p-2">
+      <div class="fw-bold mb-1">Informações de Logs</div>
+      <div class="mb-1"><strong>Severidade:</strong> <span id="severity-info"></span></div>
+      <div class="mb-1"><strong>Ataques:</strong> <span id="attack-info"></span></div>
+      <div class="text-danger"><strong>Alerta:</strong> <span id="alert-info"></span></div>
+    </div>
+    <div class="border rounded p-2">
+      <div class="fw-bold mb-1">Informações de Redes</div>
+      <div><strong>Tráfego:</strong> <span id="nids-info"></span></div>
+    </div>
+    <div class="border rounded p-2">
+      <div class="fw-bold mb-1">Informações da Placa de Rede</div>
+      <div id="iface-info"></div>
+    </div>
     <button id="theme-toggle" class="btn btn-sm btn-outline-secondary w-100" type="button">
       <i id="theme-icon" class="bi"></i>
     </button>
@@ -81,7 +90,8 @@ async function fetchAlerts() {
   const last = data.alerts[0];
   const src = last.src || 'desconhecido';
   const dst = last.dst || 'desconhecido';
-  bar.textContent = `${last.attack || 'ataque'}: ${src} -> ${dst}`;
+  const link = last.id ? `/logs?search=${encodeURIComponent(src)}` : '#';
+  bar.innerHTML = `<a href="${link}" class="text-danger text-decoration-none">${last.attack || 'ataque'}: ${src} -> ${dst}</a>`;
 }
 fetchStats();
 fetchAlerts();
