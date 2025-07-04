@@ -140,3 +140,4 @@ A interface ficará em `http://localhost:9000` e parâmetros adicionais são def
 Com o Graylog em execução, defina `GRAYLOG_URL` (padrão `http://localhost:12201/gelf`) para que o coletor e o NIDS enviem cada registro processado. Para criar um input GELF HTTP siga o guia em [docs/graylog_inputs.md](docs/graylog_inputs.md).
 Para montar um painel de visualização, consulte [docs/graylog_dashboard.md](docs/graylog_dashboard.md).
 Para transformar ou validar mensagens de forma avançada, veja o guia de pipelines em [docs/graylog_pipeline.md](docs/graylog_pipeline.md).
+Para definir o index set utilizado pelos eventos, veja o modelo sugerido em [docs/graylog_index_model.md](docs/graylog_index_model.md).
