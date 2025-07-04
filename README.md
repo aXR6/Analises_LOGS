@@ -141,3 +141,4 @@ Com o Graylog em execução, defina `GRAYLOG_URL` (padrão `http://localhost:122
 Para montar um painel de visualização, consulte [docs/graylog_dashboard.md](docs/graylog_dashboard.md).
 Para transformar ou validar mensagens de forma avançada, veja o guia de pipelines em [docs/graylog_pipeline.md](docs/graylog_pipeline.md).
 Para definir o index set utilizado pelos eventos, veja o modelo sugerido em [docs/graylog_index_model.md](docs/graylog_index_model.md).
+Para criar extratores personalizáveis no input GELF consulte [docs/graylog_extractors.md](docs/graylog_extractors.md).
