@@ -9,6 +9,14 @@
       <option value="{{s}}" {% if s==source %}selected{% endif %}>{{s}}</option>
       {% endfor %}
     </select>
+    <select name="label" class="form-select form-select-sm">
+      <option value="">Todas</option>
+      <option value="normal">normal</option>
+      <option value="dos">dos</option>
+      <option value="port scan">port scan</option>
+      <option value="brute force">brute force</option>
+      <option value="pingscan">pingscan</option>
+    </select>
     <button class="btn btn-sm btn-primary" type="submit">Filtrar</button>
   </form>
   <div class="d-flex gap-2">
@@ -33,12 +41,13 @@
 const NET_LABEL_COLORS = {{ label_colors | tojson }};
 const startPage = {{ page }};
 const currentSource = "{{ source or '' }}";
+const currentLabel = "{{ request.args.get('label','') }}";
 function labelClass(name) {
   const key = name.toLowerCase();
   return NET_LABEL_COLORS[key] || '';
 }
 async function fetchNetwork(page=startPage) {
-  const params = new URLSearchParams({page: page, source: currentSource});
+  const params = new URLSearchParams({page: page, source: currentSource, label: currentLabel});
   const resp = await fetch('/api/network?' + params.toString());
   if (!resp.ok) return;
   const data = await resp.json();

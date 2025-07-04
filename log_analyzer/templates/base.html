@@ -6,28 +6,33 @@
     <title>Log Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
 </head>
 <body class="bg-dark text-light">
-<nav id="navbar" class="navbar mb-4">
+<nav id="navbar" class="navbar navbar-expand-lg sticky-top mb-4">
   <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center">
-      <span class="navbar-brand mb-0 h1">Log Dashboard</span>
-      <ul class="navbar-nav flex-row gap-3">
-        <li class="nav-item position-relative">
-          <a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active{% endif %}">Logs</a>
-          <span id="badge-logs" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
-        </li>
-        <li class="nav-item position-relative">
-          <a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active{% endif %}">Analisados</a>
-          <span id="badge-analyzed" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
-        </li>
-        <li class="nav-item position-relative">
-          <a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active{% endif %}">Trafego de rede</a>
-          <span id="badge-network" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
-        </li>
-      </ul>
+<a class="navbar-brand mb-0 h1" href="#">Log Dashboard</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+  <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navMenu">
+  <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-3">
+    <li class="nav-item position-relative">
+      <a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active{% endif %}">Logs</a>
+      <span id="badge-logs" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+    </li>
+    <li class="nav-item position-relative">
+      <a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active{% endif %}">Analisados</a>
+      <span id="badge-analyzed" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+    </li>
+    <li class="nav-item position-relative">
+      <a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active{% endif %}">Tr\u00e1fego de rede</a>
+      <span id="badge-network" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+    </li>
+  </ul>
+</div>
     </div>
-    <div id="toolbar" class="d-flex flex-wrap gap-3 small mt-2 p-2 rounded bg-secondary text-light">
+    <div id="toolbar" class="d-flex flex-wrap gap-3 small mt-2 p-2 rounded bg-secondary text-light ms-lg-3">
       <span id="severity-info"></span>
       <span id="nids-info"></span>
       <span id="attack-info"></span>

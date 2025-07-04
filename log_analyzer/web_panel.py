@@ -139,8 +139,9 @@ def api_network():
     limit = int(request.args.get('limit', 100))
     page = int(request.args.get('page', 1))
     source = request.args.get('source')
+    label = request.args.get('label')
     db = LogDB()
-    events = list(db.fetch_network_events(limit=limit, page=page, source=source))
+    events = list(db.fetch_network_events(limit=limit, page=page, source=source, label=label))
     db.close()
     return jsonify({'events': events})
 
