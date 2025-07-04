@@ -100,6 +100,8 @@ def analyzed_page():
 def network_page():
     page = int(request.args.get('page', 1))
     source = request.args.get('source')
+    label = request.args.get('label')
+    search = request.args.get('search')
     db = LogDB()
     sources = list(db.list_network_sources())
     db.close()
@@ -110,6 +112,8 @@ def network_page():
         sources=sources,
         page=page,
         source=source,
+        label=label,
+        search=search,
         menu='network'
     )
 
@@ -140,8 +144,17 @@ def api_network():
     page = int(request.args.get('page', 1))
     source = request.args.get('source')
     label = request.args.get('label')
+    search = request.args.get('search')
     db = LogDB()
-    events = list(db.fetch_network_events(limit=limit, page=page, source=source, label=label))
+    events = list(
+        db.fetch_network_events(
+            limit=limit,
+            page=page,
+            source=source,
+            label=label,
+            search=search,
+        )
+    )
     db.close()
     return jsonify({'events': events})
 

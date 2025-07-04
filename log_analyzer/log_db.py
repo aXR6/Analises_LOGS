@@ -404,6 +404,7 @@ class LogDB:
         page: int | None = None,
         source: str | None = None,
         label: str | None = None,
+        search: str | None = None,
     ) -> Iterable[Tuple[Any, ...]]:
         query = "SELECT id, timestamp, event, label, score, source FROM network_events"
         clauses: list[str] = []
@@ -414,6 +415,9 @@ class LogDB:
         if label:
             clauses.append("label = %s")
             params.append(label)
+        if search:
+            clauses.append("event ILIKE %s")
+            params.append(f"%{search}%")
         if clauses:
             query += " WHERE " + " AND ".join(clauses)
         query += " ORDER BY id DESC"
