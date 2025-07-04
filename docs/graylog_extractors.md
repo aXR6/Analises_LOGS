@@ -24,6 +24,8 @@ Para extrair o nome do usuário, o IP de origem e a porta:
    ```
    Failed password for (?:invalid user )?(?<username>\w+) from (?<src_ip>\d+\.\d+\.\d+\.\d+) port (?<port>\d+)
    ```
+   Utilize a opção **Regex flags** com o valor `MULTILINE` para abranger mensagens
+   quebradas em mais de uma linha.
 4. Marque **Store as field** e salve os campos `username`, `src_ip` e `port`.
 5. Clique em **Try** para testar o extrator e, se os valores estiverem corretos, confirme em **Save**.
 
@@ -38,7 +40,8 @@ IP 192.168.1.10.5678 > 10.0.0.5.80: Flags [S], seq 12345, length 0
 Para separar endereços e portas:
 
 1. No mesmo menu de extratores, clique em **Add extractor** e escolha **Grok pattern**.
-2. Defina o campo **message** como fonte e adote o seguinte padrão:
+2. Defina o campo **message** como fonte e adote o seguinte padrão
+   marcando **Named captures only** para evitar campos numerados:
    ```
    IP %{IP:src_ip}.%{INT:src_port} > %{IP:dst_ip}.%{INT:dst_port}: %{GREEDYDATA:packet_info}
    ```
