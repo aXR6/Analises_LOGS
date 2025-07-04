@@ -7,7 +7,7 @@ services:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
     networks:
-      - graylog
+      - analise_logs
 
   opensearch:
     image: opensearchproject/opensearch:2.15.0
@@ -35,7 +35,7 @@ services:
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     networks:
-      graylog:
+      analise_logs:
         ipv4_address: 172.30.0.2
 
   graylog:
@@ -60,7 +60,8 @@ services:
       # Usuario e senha definidos no .env
       GRAYLOG_ROOT_USERNAME: "${GRAYLOG_ROOT_USERNAME}"
       # Coloque o SHA2 da senha do admin:
-      # unix: echo -n "${GRAYLOG_ROOT_PASSWORD_SHA2}" | sha256sum | cut -d " " -f1
+      # unix: echo -n "${GRAYLOG_ROOT_PASSWORD_SHA2}" | sha256sum \
+      #   cut -d " " -f1
       GRAYLOG_ROOT_PASSWORD_SHA2: "${GRAYLOG_ROOT_PASSWORD_SHA2}"
       GRAYLOG_REPORT_DISABLE_SANDBOX: "true"
     ports:
@@ -72,7 +73,7 @@ services:
     volumes:
       - graylog_journal:/usr/share/graylog/data
     networks:
-      graylog:
+      analise_logs:
         ipv4_address: 172.30.0.3
 
 #  analises_logs:
@@ -91,7 +92,7 @@ services:
 #    network_mode: host
 
 networks:
-  graylog:
+  analise_logs:
     driver: bridge
     ipam:
       config:
