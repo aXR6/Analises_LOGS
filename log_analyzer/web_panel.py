@@ -16,13 +16,13 @@ SEVERITY_COLORS = {
 }
 
 NIDS_COLORS = {
-    # Classes used to color network labels. Using Bootstrap badge styles
-    # provides good contrast in both light and dark themes.
-    "normal": "badge text-bg-secondary",
-    "dos": "badge text-bg-danger",
-    "port scan": "badge text-bg-warning",
-    "brute force": "badge text-bg-info",
-    "pingscan": "badge text-bg-primary",
+    # Classes used to color network labels with text colors similar
+    # to the log severity styles so that both pages share a consistent look.
+    "normal": "text-secondary",
+    "dos": "text-danger",
+    "port scan": "text-warning",
+    "brute force": "text-info",
+    "pingscan": "text-primary",
 }
 
 
