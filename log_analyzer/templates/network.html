@@ -2,7 +2,7 @@
 {% block content %}
 <h2 class="mb-4">Tráfego de Rede</h2>
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
-  <form class="d-flex flex-wrap gap-2" method="get">
+  <form id="filter-form" class="d-flex flex-wrap gap-2" method="get">
     <select name="source" class="form-select form-select-sm">
       <option value="">Todos</option>
       {% for s in sources %}
@@ -17,11 +17,12 @@
       <option value="brute force">brute force</option>
       <option value="pingscan">pingscan</option>
     </select>
+    <input type="text" name="search" class="form-control form-control-sm" placeholder="Buscar" value="{{ search or '' }}">
     <button class="btn btn-sm btn-primary" type="submit">Filtrar</button>
   </form>
   <div class="d-flex gap-2">
-    <a href="?page={{ page-1 if page>1 else 1 }}{% if source %}&source={{ source }}{% endif %}" class="btn btn-sm btn-secondary">Anterior</a>
-    <a href="?page={{ page+1 }}{% if source %}&source={{ source }}{% endif %}" class="btn btn-sm btn-secondary">Próximo</a>
+    <a href="?page={{ page-1 if page>1 else 1 }}{% if source %}&source={{ source }}{% endif %}{% if label %}&label={{ label }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn btn-sm btn-secondary">Anterior</a>
+    <a href="?page={{ page+1 }}{% if source %}&source={{ source }}{% endif %}{% if label %}&label={{ label }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn btn-sm btn-secondary">Próximo</a>
   </div>
 </div>
 <div class="table-responsive">
@@ -56,13 +57,14 @@
 const NET_LABEL_COLORS = {{ label_colors | tojson }};
 const startPage = {{ page }};
 const currentSource = "{{ source or '' }}";
-const currentLabel = "{{ request.args.get('label','') }}";
+const currentLabel = "{{ label or '' }}";
+const currentSearch = "{{ search or '' }}";
 function labelClass(name) {
   const key = name.toLowerCase();
   return NET_LABEL_COLORS[key] || '';
 }
 async function fetchNetwork(page=startPage) {
-  const params = new URLSearchParams({page: page, source: currentSource, label: currentLabel});
+  const params = new URLSearchParams({page: page, source: currentSource, label: currentLabel, search: currentSearch});
   const resp = await fetch('/api/network?' + params.toString());
   if (!resp.ok) return;
   const data = await resp.json();
@@ -71,7 +73,7 @@ async function fetchNetwork(page=startPage) {
   for (const row of data.events) {
     const tr = document.createElement('tr');
     if (row[3].toLowerCase() !== 'normal') {
-      tr.classList.add('table-warning');
+      tr.classList.add('table-danger');
     }
     tr.innerHTML = `
       <td>${row[0]}</td>
@@ -79,7 +81,7 @@ async function fetchNetwork(page=startPage) {
       <td class="text-break">${row[2]}</td>
       <td class="${labelClass(row[3])}">${row[3]}</td>
       <td>${row[4].toFixed(2)}</td>
-      <td><a href="?source=${row[5]}">${row[5] || 'desconhecido'}</a></td>
+      <td><a href="?source=${row[5]}${currentLabel ? `&label=${currentLabel}` : ''}${currentSearch ? `&search=${currentSearch}` : ''}">${row[5] || 'desconhecido'}</a></td>
       <td><button class="btn btn-sm btn-outline-primary" onclick="analyzeNet(${row[0]})">Analisar</button></td>`;
     list.appendChild(tr);
   }
