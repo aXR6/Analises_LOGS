@@ -47,3 +47,7 @@ Para separar endereços e portas:
 ## 4. Verificando os resultados
 
 Retorne à tela **Search** e envie alguns logs para o Graylog. Os campos extraídos ficarão disponíveis para filtros, widgets de dashboard e regras de pipeline. Caso deseje realizar ajustes ou adicionar novos padrões, repita os passos acima em **Manage extractors**.
+
+## 5. Importação via JSON
+
+Se preferir importar extratores já prontos, utilize o menu **Actions > Import Extractors** dentro de **Manage extractors** e cole o conteúdo do arquivo `Graylog/extractors.json` deste repositório. Os campos serão criados automaticamente.
