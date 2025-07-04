@@ -36,9 +36,7 @@ class LogDB:
                     semantic_outlier BOOLEAN
             )"""
         )
-        cur.execute(
-            "ALTER TABLE logs ADD COLUMN IF NOT EXISTS graylog_id TEXT"
-        )
+        cur.execute("ALTER TABLE logs ADD COLUMN IF NOT EXISTS graylog_id TEXT")
         cur.execute(
             """CREATE TABLE IF NOT EXISTS log_analysis (
                     id SERIAL PRIMARY KEY,
@@ -78,9 +76,7 @@ class LogDB:
                     score REAL
             )"""
         )
-        cur.execute(
-            "ALTER TABLE network_events ADD COLUMN IF NOT EXISTS source TEXT"
-        )
+        cur.execute("ALTER TABLE network_events ADD COLUMN IF NOT EXISTS source TEXT")
         cur.execute(
             """CREATE TABLE IF NOT EXISTS network_analysis (
                     id SERIAL PRIMARY KEY,
@@ -264,9 +260,7 @@ class LogDB:
 
     def count_by_category(self) -> Iterable[Tuple[str, int]]:
         cur = self.conn.cursor()
-        cur.execute(
-            "SELECT category, COUNT(*) FROM logs GROUP BY category"
-        )
+        cur.execute("SELECT category, COUNT(*) FROM logs GROUP BY category")
         rows = cur.fetchall()
         cur.close()
         return rows
@@ -358,10 +352,10 @@ class LogDB:
         return rows
 
     def fetch_recent_attack_logs(self, limit: int = 5) -> Iterable[Tuple[Any, ...]]:
-        """Return recent malicious log entries with all fields."""
+        """Return recent malicious log entries with their ID."""
         cur = self.conn.cursor()
         cur.execute(
-            "SELECT timestamp, host, message FROM logs WHERE malicious = TRUE ORDER BY id DESC LIMIT %s",
+            "SELECT id, timestamp, host, message FROM logs WHERE malicious = TRUE ORDER BY id DESC LIMIT %s",
             (limit,),
         )
         rows = cur.fetchall()
@@ -505,7 +499,9 @@ class LogDB:
 
     def list_network_sources(self) -> Iterable[str]:
         cur = self.conn.cursor()
-        cur.execute("SELECT DISTINCT source FROM network_events WHERE source IS NOT NULL")
+        cur.execute(
+            "SELECT DISTINCT source FROM network_events WHERE source IS NOT NULL"
+        )
         rows = [r[0] for r in cur.fetchall()]
         cur.close()
         return rows
