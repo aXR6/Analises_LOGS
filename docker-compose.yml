@@ -35,11 +35,12 @@ services:
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     networks:
-      - graylog
+      graylog:
+        ipv4_address: 172.30.0.2
 
   graylog:
     # Versão Community do Graylog
-    image: graylog/graylog:6.3.0 
+    image: graylog/graylog:6.3.0
     container_name: graylog
     restart: on-failure
     depends_on:
@@ -54,7 +55,7 @@ services:
       GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:9000"
       GRAYLOG_HTTP_EXTERNAL_URI: "http://localhost:9000/"
       GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
-      GRAYLOG_ELASTICSEARCH_HOSTS: "http://opensearch:9200"
+      GRAYLOG_ELASTICSEARCH_HOSTS: "http://172.30.0.2:9200"
       GRAYLOG_PASSWORD_SECRET: "muitoseguraepepper1234567890"
       # Usuario e senha definidos no .env
       GRAYLOG_ROOT_USERNAME: "${GRAYLOG_ROOT_USERNAME}"
@@ -71,7 +72,8 @@ services:
     volumes:
       - graylog_journal:/usr/share/graylog/data
     networks:
-      - graylog
+      graylog:
+        ipv4_address: 172.30.0.3
 
 #  analises_logs:
 #    build: .
@@ -91,6 +93,9 @@ services:
 networks:
   graylog:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
 
 volumes:
   mongodb_data:
