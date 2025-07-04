@@ -142,3 +142,16 @@ Para montar um painel de visualização, consulte [docs/graylog_dashboard.md](do
 Para transformar ou validar mensagens de forma avançada, veja o guia de pipelines em [docs/graylog_pipeline.md](docs/graylog_pipeline.md).
 Para definir o index set utilizado pelos eventos, veja o modelo sugerido em [docs/graylog_index_model.md](docs/graylog_index_model.md).
 Para criar extratores personalizáveis no input GELF consulte [docs/graylog_extractors.md](docs/graylog_extractors.md).
+
+## Documentação complementar
+
+A pasta `docs/` concentra guias que esclarecem dúvidas recorrentes sobre a
+configuração e o uso do projeto:
+
+- **rsyslog_optimization.md** – como otimizar o rsyslog para enviar os logs ao sistema.
+- **graylog_node_id.md** – solução para o erro de *Node ID* ao iniciar o Graylog.
+- **graylog_inputs.md** – passo a passo para criar um input GELF HTTP no Graylog.
+- **graylog_dashboard.md** – orientações para montar um painel de visualização.
+- **graylog_pipeline.md** – criação de pipelines de processamento no Graylog.
+- **graylog_index_model.md** – modelo sugerido de *index set* para os eventos.
+- **graylog_extractors.md** – como definir extratores personalizados no GELF.
