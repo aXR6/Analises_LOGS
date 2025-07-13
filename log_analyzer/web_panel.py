@@ -10,19 +10,19 @@ from pathlib import Path
 app = Flask(__name__)
 
 SEVERITY_COLORS = {
-    "INFO": "text-info",
-    "WARNING": "text-warning",
-    "ERROR": "text-danger",
+    "INFO": "label label-info",
+    "WARNING": "label label-warning",
+    "ERROR": "label label-danger",
 }
 
 NIDS_COLORS = {
-    # Classes used to color network labels with text colors similar
-    # to the log severity styles so that both pages share a consistent look.
-    "normal": "text-secondary",
-    "dos": "text-danger",
-    "port scan": "text-warning",
-    "brute force": "text-info",
-    "pingscan": "text-primary",
+    # Classes used to color network labels with Bootstrap label styles
+    # so that both pages share a consistent look.
+    "normal": "label label-default",
+    "dos": "label label-danger",
+    "port scan": "label label-warning",
+    "brute force": "label label-info",
+    "pingscan": "label label-primary",
 }
 
 
@@ -47,7 +47,8 @@ def get_network_info() -> tuple[list[str], list[str]]:
         pass
     for iface in interfaces:
         try:
-            state = Path(f"/sys/class/net/{iface}/operstate").read_text().strip()
+            state_path = Path(f"/sys/class/net/{iface}/operstate")
+            state = state_path.read_text().strip()
             if state == "up":
                 active.append(iface)
         except Exception:
@@ -237,9 +238,14 @@ def api_alerts():
         src, dst = extract_ips(msg)
         if not dst:
             dst = host
-        alerts.append(
-            {"id": log_id, "timestamp": ts, "src": src, "dst": dst, "attack": attack}
-        )
+        alert = {
+            "id": log_id,
+            "timestamp": ts,
+            "src": src,
+            "dst": dst,
+            "attack": attack,
+        }
+        alerts.append(alert)
     return jsonify({"alerts": alerts})
 
 
@@ -249,7 +255,9 @@ def api_counts():
     db = LogDB()
     counts = {
         "logs": db.count_logs(),
-        "analyzed": db.count_analyzed_logs() + db.count_analyzed_network_events(),
+        "analyzed": (
+            db.count_analyzed_logs() + db.count_analyzed_network_events()
+        ),
         "network": db.count_network_events(),
     }
     db.close()

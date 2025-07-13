@@ -71,9 +71,9 @@ const currentMenu = '{{ menu }}';
 async function fetchStats(){
   const resp=await fetch('/api/stats'); if(!resp.ok) return;
   const data=await resp.json();
-  $('#severity-info').html(Object.entries(data.severity).map(([k,v])=>`<span class="${SEVERITY_COLORS[k]||''} margin-r-5">${k}: ${v}</span>`).join(' '));
+  $('#severity-info').html(Object.entries(data.severity).map(([k,v])=>`<span class="${SEVERITY_COLORS[k]||'label label-default'} margin-r-5">${k}: ${v}</span>`).join(' '));
   $('#attack-info').text(Object.entries(data.attacks).map(([k,v])=>`${k}: ${v}`).join(' '));
-  $('#nids-info').html(Object.entries(data.network_labels||{}).map(([k,v])=>`<span class="${LABEL_COLORS[k.toLowerCase()]||''} margin-r-5">${k}:${v}</span>`).join(' '));
+  $('#nids-info').html(Object.entries(data.network_labels||{}).map(([k,v])=>`<span class="${LABEL_COLORS[k.toLowerCase()]||'label label-default'} margin-r-5">${k}:${v}</span>`).join(' '));
   $('#iface-info').text(`Ativas: ${data.interfaces.active.join(', ')} | Atividade: ${data.interfaces.activity.join(', ')}`);
 }
 async function fetchAlerts(){
@@ -105,8 +105,12 @@ fetchCounts(); setInterval(fetchCounts,5000);
 const THEME_KEY='theme';
 function applyTheme(theme){
   const body=document.getElementById('theme-body');
-  body.classList.remove('skin-blue','skin-black');
-  body.classList.add(theme==='dark'?'skin-black':'skin-blue');
+  body.classList.remove('skin-blue','skin-black','dark-mode');
+  if(theme==='dark'){
+    body.classList.add('skin-black','dark-mode');
+  }else{
+    body.classList.add('skin-blue');
+  }
   document.getElementById('theme-icon').className=theme==='dark'?'fa fa-moon-o':'fa fa-sun-o';
 }
 const savedTheme=localStorage.getItem(THEME_KEY)||'dark';

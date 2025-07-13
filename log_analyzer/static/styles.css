@@ -23,3 +23,20 @@ body {
 .margin-r-5 {
   margin-right: 5px;
 }
+
+.sidebar-info {
+  line-height: 1.4;
+  font-size: 13px;
+  padding: 10px 15px;
+}
+
+body.dark-mode {
+  background-color: #1e282c;
+  color: #c2c7d0;
+}
+body.dark-mode .content-wrapper {
+  background-color: #1e282c;
+}
+body.dark-mode .sidebar {
+  background-color: #222d32;
+}
