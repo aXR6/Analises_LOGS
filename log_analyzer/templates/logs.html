@@ -103,7 +103,14 @@ async function analyzeLog(id) {
   const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
   modal.show();
 }
-fetchLogs();
-setInterval(fetchLogs, 5000);
+let currentCount = 0;
+fetchLogs().then(()=>{currentCount=lastCounts.logs||0;});
+document.addEventListener('counts-update',function(e){
+  const counts=e.detail;
+  if(counts.logs>currentCount){
+    fetchLogs();
+    currentCount=counts.logs;
+  }
+});
 </script>
 {% endblock %}

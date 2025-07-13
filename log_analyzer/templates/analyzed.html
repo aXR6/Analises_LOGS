@@ -71,6 +71,14 @@ async function fetchAnalyzed(page=1) {
     listNet.appendChild(tr);
   }
 }
-fetchAnalyzed();
+let currentAnalyzed = 0;
+fetchAnalyzed().then(()=>{currentAnalyzed=lastCounts.analyzed||0;});
+document.addEventListener('counts-update',function(e){
+  const counts=e.detail;
+  if(counts.analyzed>currentAnalyzed){
+    fetchAnalyzed();
+    currentAnalyzed=counts.analyzed;
+  }
+});
 </script>
 {% endblock %}

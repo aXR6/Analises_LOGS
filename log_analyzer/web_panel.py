@@ -1,4 +1,16 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import (
+    Flask,
+    render_template,
+    jsonify,
+    request,
+    redirect,
+    url_for,
+    Response,
+    stream_with_context,
+)
+import json
+import time
+from typing import Any
 from log_analyzer.log_db import LogDB
 from log_analyzer.llm_analysis import analyze_log, analyze_network_event
 from log_analyzer.attack_detection import count_attack_types, classify_attack
@@ -267,6 +279,73 @@ def api_counts():
     }
     db.close()
     return jsonify(counts)
+
+
+@app.route("/api/stream")
+def api_stream():
+    """Server-Sent Events stream with counts, stats and alerts."""
+
+    def build_stats(db: LogDB) -> dict:
+        severity_counts = dict(db.count_by_severity())
+        malicious_msgs = list(db.fetch_recent_malicious(limit=200))
+        label_counts = dict(db.count_network_by_label())
+        attacks = count_attack_types(malicious_msgs)
+        active, activity = get_network_info()
+        return {
+            "severity": severity_counts,
+            "attacks": attacks,
+            "interfaces": {"active": active, "activity": activity},
+            "network_labels": label_counts,
+        }
+
+    def event_stream():
+        db = LogDB()
+        try:
+            last_counts = {
+                "logs": db.count_logs(),
+                "analyzed": db.count_analyzed_logs()
+                + db.count_analyzed_network_events(),
+                "network": db.count_network_events(),
+            }
+            last_alert = None
+            stats = build_stats(db)
+            yield f"data: {json.dumps({'counts': last_counts, 'stats': stats})}\n\n"
+            while True:
+                time.sleep(2)
+                counts = {
+                    "logs": db.count_logs(),
+                    "analyzed": db.count_analyzed_logs()
+                    + db.count_analyzed_network_events(),
+                    "network": db.count_network_events(),
+                }
+                data: dict[str, Any] = {}
+                if counts != last_counts:
+                    stats = build_stats(db)
+                    data["counts"] = counts
+                    data["stats"] = stats
+                    last_counts = counts
+                row = next(db.fetch_recent_attack_logs(limit=1), None)
+                if row:
+                    log_id, ts, host, msg = row
+                    if log_id != last_alert:
+                        attack = classify_attack(msg)
+                        src, dst = extract_ips(msg)
+                        if not dst:
+                            dst = host
+                        data["alert"] = {
+                            "id": log_id,
+                            "timestamp": ts,
+                            "src": src,
+                            "dst": dst,
+                            "attack": attack,
+                        }
+                        last_alert = log_id
+                if data:
+                    yield f"data: {json.dumps(data)}\n\n"
+        finally:
+            db.close()
+
+    return Response(stream_with_context(event_stream()), mimetype="text/event-stream")
 
 
 @app.route("/api/analyze/<int:log_id>")
