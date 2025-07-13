@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="mb-4">Tráfego de Rede</h2>
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
-  <form id="filter-form" class="d-flex flex-wrap gap-2" method="get">
-    <select name="source" class="form-select form-select-sm">
+<div class="row">
+  <form id="filter-form" class="form-inline" method="get">
+    <select name="source" class="form-control input-sm">
       <option value="">Todos</option>
       {% for s in sources %}
       <option value="{{s}}" {% if s==source %}selected{% endif %}>{{s}}</option>
       {% endfor %}
     </select>
-    <select name="label" class="form-select form-select-sm">
+    <select name="label" class="form-control input-sm">
       <option value="">Todas</option>
       <option value="normal">normal</option>
       <option value="dos">dos</option>
@@ -17,16 +17,18 @@
       <option value="brute force">brute force</option>
       <option value="pingscan">pingscan</option>
     </select>
-    <input type="text" name="search" class="form-control form-control-sm" placeholder="Buscar" value="{{ search or '' }}">
-    <button class="btn btn-sm btn-primary" type="submit">Filtrar</button>
+    <input type="date" name="start" class="form-control input-sm" value="{{ start or '' }}">
+    <input type="date" name="end" class="form-control input-sm" value="{{ end or '' }}">
+    <input type="text" name="search" class="form-control input-sm" placeholder="Buscar" value="{{ search or '' }}">
+    <button class="btn btn-primary btn-sm" type="submit">Filtrar</button>
   </form>
-  <div class="d-flex gap-2">
-    <a href="?page={{ page-1 if page>1 else 1 }}{% if source %}&source={{ source }}{% endif %}{% if label %}&label={{ label }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn btn-sm btn-secondary">Anterior</a>
-    <a href="?page={{ page+1 }}{% if source %}&source={{ source }}{% endif %}{% if label %}&label={{ label }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn btn-sm btn-secondary">Próximo</a>
+  <div class="pull-right">
+    <a href="?page={{ page-1 if page>1 else 1 }}{% if source %}&source={{ source }}{% endif %}{% if label %}&label={{ label }}{% endif %}{% if search %}&search={{ search }}{% endif %}{% if start %}&start={{ start }}{% endif %}{% if end %}&end={{ end }}{% endif %}" class="btn btn-default btn-sm">Anterior</a>
+    <a href="?page={{ page+1 }}{% if source %}&source={{ source }}{% endif %}{% if label %}&label={{ label }}{% endif %}{% if search %}&search={{ search }}{% endif %}{% if start %}&start={{ start }}{% endif %}{% if end %}&end={{ end }}{% endif %}" class="btn btn-default btn-sm">Próximo</a>
   </div>
 </div>
 <div class="table-responsive">
-  <table class="table table-sm table-striped align-middle">
+  <table class="table table-striped table-condensed">
     <thead>
       <tr>
         <th>ID</th>
@@ -59,12 +61,14 @@ const startPage = {{ page }};
 const currentSource = "{{ source or '' }}";
 const currentLabel = "{{ label or '' }}";
 const currentSearch = "{{ search or '' }}";
+const currentStart = "{{ start or '' }}";
+const currentEnd = "{{ end or '' }}";
 function labelClass(name) {
   const key = name.toLowerCase();
   return NET_LABEL_COLORS[key] || '';
 }
 async function fetchNetwork(page=startPage) {
-  const params = new URLSearchParams({page: page, source: currentSource, label: currentLabel, search: currentSearch});
+  const params = new URLSearchParams({page: page, source: currentSource, label: currentLabel, search: currentSearch, start: currentStart, end: currentEnd});
   const resp = await fetch('/api/network?' + params.toString());
   if (!resp.ok) return;
   const data = await resp.json();
@@ -81,8 +85,8 @@ async function fetchNetwork(page=startPage) {
       <td class="text-break">${row[2]}</td>
       <td class="${labelClass(row[3])}">${row[3]}</td>
       <td>${row[4].toFixed(2)}</td>
-      <td><a href="?source=${row[5]}${currentLabel ? `&label=${currentLabel}` : ''}${currentSearch ? `&search=${currentSearch}` : ''}">${row[5] || 'desconhecido'}</a></td>
-      <td><button class="btn btn-sm btn-outline-primary" onclick="analyzeNet(${row[0]})">Analisar</button></td>`;
+      <td><a href="?source=${row[5]}${currentLabel ? `&label=${currentLabel}` : ''}${currentSearch ? `&search=${currentSearch}` : ''}${currentStart ? `&start=${currentStart}` : ''}${currentEnd ? `&end=${currentEnd}` : ''}">${row[5] || 'desconhecido'}</a></td>
+      <td><button class="btn btn-default btn-sm" onclick="analyzeNet(${row[0]})">Analisar</button></td>`;
     list.appendChild(tr);
   }
 }
