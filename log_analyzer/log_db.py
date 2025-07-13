@@ -17,6 +17,7 @@ class LogDB:
             user=user,
             password=password,
         )
+        self.conn.autocommit = True
         self._init_db()
 
     def _init_db(self) -> None:
