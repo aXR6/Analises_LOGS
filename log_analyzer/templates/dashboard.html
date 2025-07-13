@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row" id="count-cards">
+  <div class="col-lg-4 col-xs-6">
+    <div class="small-box bg-aqua">
+      <div class="inner">
+        <h3 id="count-logs">0</h3>
+        <p>Logs</p>
+      </div>
+      <div class="icon"><i class="fa fa-file-text-o"></i></div>
+    </div>
+  </div>
+  <div class="col-lg-4 col-xs-6">
+    <div class="small-box bg-green">
+      <div class="inner">
+        <h3 id="count-analyzed">0</h3>
+        <p>Analisados</p>
+      </div>
+      <div class="icon"><i class="fa fa-check"></i></div>
+    </div>
+  </div>
+  <div class="col-lg-4 col-xs-6">
+    <div class="small-box bg-yellow">
+      <div class="inner">
+        <h3 id="count-network">0</h3>
+        <p>Eventos de Rede</p>
+      </div>
+      <div class="icon"><i class="fa fa-exchange"></i></div>
+    </div>
+  </div>
+</div>
+<section class="content" id="severity-section">
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">Severidade</h3>
+    </div>
+    <div class="box-body">
+      <div class="progress-group">
+        INFO
+        <span class="pull-right"><b id="sev-info-count">0</b></span>
+        <div class="progress progress-sm">
+          <div id="sev-info-bar" class="progress-bar progress-bar-info" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="progress-group">
+        WARNING
+        <span class="pull-right"><b id="sev-warn-count">0</b></span>
+        <div class="progress progress-sm">
+          <div id="sev-warn-bar" class="progress-bar progress-bar-warning" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="progress-group">
+        ERROR
+        <span class="pull-right"><b id="sev-error-count">0</b></span>
+        <div class="progress progress-sm">
+          <div id="sev-error-bar" class="progress-bar progress-bar-danger" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="content" id="network-section">
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">Etiquetas de Rede</h3>
+    </div>
+    <div class="box-body">
+      <canvas id="network-chart" height="100"></canvas>
+    </div>
+  </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+async function loadDashboard(){
+  const respCounts=await fetch('/api/counts');
+  if(respCounts.ok){
+    const c=await respCounts.json();
+    document.getElementById('count-logs').textContent=c.logs;
+    document.getElementById('count-analyzed').textContent=c.analyzed;
+    document.getElementById('count-network').textContent=c.network;
+  }
+  const resp=await fetch('/api/stats');
+  if(!resp.ok) return;
+  const data=await resp.json();
+  const total=(data.severity.INFO||0)+(data.severity.WARNING||0)+(data.severity.ERROR||0);
+  function upd(id,count){
+    document.getElementById(id+'-count').textContent=count;
+    document.getElementById(id+'-bar').style.width=total?((count/total)*100)+'%':'0%';
+  }
+  upd('sev-info',data.severity.INFO||0);
+  upd('sev-warn',data.severity.WARNING||0);
+  upd('sev-error',data.severity.ERROR||0);
+  const labels=Object.keys(data.network_labels||{});
+  const values=Object.values(data.network_labels||{});
+  const ctx=document.getElementById('network-chart');
+  new Chart(ctx,{type:'doughnut',data:{labels:labels,datasets:[{data:values,backgroundColor:['#d2d6de','#f39c12','#dd4b39','#00c0ef','#3c8dbc']}]},options:{maintainAspectRatio:false}});
+}
+loadDashboard();
+</script>
+{% endblock %}

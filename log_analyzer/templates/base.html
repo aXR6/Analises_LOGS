@@ -18,7 +18,7 @@
       <span class="logo-mini"><b>L</b>A</span>
       <span class="logo-lg"><b>Log</b>Dashboard</span>
     </a>
-    <nav class="navbar navbar-static-top">
+    <nav id="top-nav" class="navbar navbar-static-top light-navbar">
       <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
         <span class="sr-only">Toggle navigation</span>
       </a>
@@ -33,6 +33,9 @@
     <section class="sidebar">
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MENU</li>
+        <li class="{% if menu=='dashboard' %}active{% endif %}">
+          <a href="{{ url_for('dashboard_page') }}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
+        </li>
         <li class="{% if menu=='logs' %}active{% endif %}">
           <a href="{{ url_for('logs_page') }}"><i class="fa fa-file-text-o"></i> <span>Logs</span><small id="badge-logs" class="label pull-right bg-red hidden">+1</small></a>
         </li>
@@ -123,6 +126,13 @@ function applyTheme(theme){
     body.classList.add('skin-black','dark-mode');
   }else{
     body.classList.add('skin-blue');
+  }
+  const nav=document.getElementById('top-nav');
+  nav.classList.remove('dark-navbar','light-navbar');
+  if(theme==='dark'){
+    nav.classList.add('dark-navbar');
+  }else{
+    nav.classList.add('light-navbar');
   }
   document.getElementById('theme-icon').className=theme==='dark'?'fa fa-moon-o':'fa fa-sun-o';
 }
