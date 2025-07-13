@@ -185,6 +185,8 @@ class LogDB:
         host: str | None = None,
         program: str | None = None,
         search: str | None = None,
+        start: str | None = None,
+        end: str | None = None,
     ) -> Iterable[Tuple[Any, ...]]:
         """Return logs optionally paginated and filtered."""
         query = (
@@ -210,6 +212,12 @@ class LogDB:
                 return []
             clauses.append("id = ANY(%s)")
             params.append(ids)
+        if start:
+            clauses.append("timestamp >= %s")
+            params.append(start)
+        if end:
+            clauses.append("timestamp <= %s")
+            params.append(end)
         if clauses:
             query += " WHERE " + " AND ".join(clauses)
         query += " ORDER BY id DESC"
@@ -399,6 +407,8 @@ class LogDB:
         source: str | None = None,
         label: str | None = None,
         search: str | None = None,
+        start: str | None = None,
+        end: str | None = None,
     ) -> Iterable[Tuple[Any, ...]]:
         query = "SELECT id, timestamp, event, label, score, source FROM network_events"
         clauses: list[str] = []
@@ -412,6 +422,12 @@ class LogDB:
         if search:
             clauses.append("event ILIKE %s")
             params.append(f"%{search}%")
+        if start:
+            clauses.append("timestamp >= %s")
+            params.append(start)
+        if end:
+            clauses.append("timestamp <= %s")
+            params.append(end)
         if clauses:
             query += " WHERE " + " AND ".join(clauses)
         query += " ORDER BY id DESC"
