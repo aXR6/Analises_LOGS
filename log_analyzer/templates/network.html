@@ -65,7 +65,7 @@ const currentStart = "{{ start or '' }}";
 const currentEnd = "{{ end or '' }}";
 function labelClass(name) {
   const key = name.toLowerCase();
-  return NET_LABEL_COLORS[key] || '';
+  return NET_LABEL_COLORS[key] || 'label label-default';
 }
 async function fetchNetwork(page=startPage) {
   const params = new URLSearchParams({page: page, source: currentSource, label: currentLabel, search: currentSearch, start: currentStart, end: currentEnd});
@@ -83,7 +83,7 @@ async function fetchNetwork(page=startPage) {
       <td>${row[0]}</td>
       <td>${row[1]}</td>
       <td class="text-break">${row[2]}</td>
-      <td class="${labelClass(row[3])}">${row[3]}</td>
+      <td><span class="${labelClass(row[3])}">${row[3]}</span></td>
       <td>${row[4].toFixed(2)}</td>
       <td><a href="?source=${row[5]}${currentLabel ? `&label=${currentLabel}` : ''}${currentSearch ? `&search=${currentSearch}` : ''}${currentStart ? `&start=${currentStart}` : ''}${currentEnd ? `&end=${currentEnd}` : ''}">${row[5] || 'desconhecido'}</a></td>
       <td><button class="btn btn-default btn-sm" onclick="analyzeNet(${row[0]})">Analisar</button></td>`;
