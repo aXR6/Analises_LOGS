@@ -1,156 +1,121 @@
-<!doctype html>
-<html data-bs-theme="dark">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Log Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Log Dashboard</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@2.4.18/dist/css/AdminLTE.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@2.4.18/dist/css/skins/_all-skins.min.css">
+  <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
 </head>
-<body class="bg-dark text-light">
-<div id="wrapper" class="d-flex">
-<nav id="navbar" class="d-flex flex-column p-3 navbar-dark bg-dark flex-shrink-0">
-  <a class="navbar-brand mb-4" href="#">Log Dashboard</a>
-  <ul class="nav nav-pills flex-column mb-auto gap-2">
-    <li class="nav-item position-relative">
-      <a href="{{ url_for('logs_page') }}" class="nav-link {% if menu=='logs' %}active{% endif %}">Logs
-        <span id="badge-logs" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
+<body class="hold-transition skin-blue sidebar-mini" id="theme-body">
+<div class="wrapper">
+  <header class="main-header">
+    <a href="#" class="logo">
+      <span class="logo-mini"><b>L</b>A</span>
+      <span class="logo-lg"><b>Log</b>Dashboard</span>
+    </a>
+    <nav class="navbar navbar-static-top">
+      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+        <span class="sr-only">Toggle navigation</span>
       </a>
-    </li>
-    <li class="nav-item position-relative">
-      <a href="{{ url_for('analyzed_page') }}" class="nav-link {% if menu=='analyzed' %}active{% endif %}">Analisados
-        <span id="badge-analyzed" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
-      </a>
-    </li>
-    <li class="nav-item position-relative">
-      <a href="{{ url_for('network_page') }}" class="nav-link {% if menu=='network' %}active{% endif %}">Tráfego de rede
-        <span id="badge-network" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">+1</span>
-      </a>
-    </li>
-  </ul>
-  <div id="toolbar" class="mt-auto small pt-3 d-grid gap-2">
-    <div class="border rounded p-2">
-      <div class="fw-bold mb-1">Informações de Logs</div>
-      <div class="mb-1"><strong>Severidade:</strong> <span id="severity-info"></span></div>
-      <div class="mb-1"><strong>Ataques:</strong> <span id="attack-info"></span></div>
-      <div class="text-danger"><strong>Alerta:</strong> <span id="alert-info"></span></div>
-    </div>
-    <div class="border rounded p-2">
-      <div class="fw-bold mb-1">Informações de Redes</div>
-      <div><strong>Tráfego:</strong> <span id="nids-info"></span></div>
-    </div>
-    <div class="border rounded p-2">
-      <div class="fw-bold mb-1">Informações da Placa de Rede</div>
-      <div id="iface-info"></div>
-    </div>
-    <button id="theme-toggle" class="btn btn-sm btn-outline-secondary w-100" type="button">
-      <i id="theme-icon" class="bi"></i>
-    </button>
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+          <li><a href="#" id="theme-toggle"><i id="theme-icon" class="fa fa-moon-o"></i></a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <aside class="main-sidebar">
+    <section class="sidebar">
+      <ul class="sidebar-menu" data-widget="tree">
+        <li class="header">MENU</li>
+        <li class="{% if menu=='logs' %}active{% endif %}">
+          <a href="{{ url_for('logs_page') }}"><i class="fa fa-file-text-o"></i> <span>Logs</span><small id="badge-logs" class="label pull-right bg-red hidden">+1</small></a>
+        </li>
+        <li class="{% if menu=='analyzed' %}active{% endif %}">
+          <a href="{{ url_for('analyzed_page') }}"><i class="fa fa-check-square-o"></i> <span>Analisados</span><small id="badge-analyzed" class="label pull-right bg-red hidden">+1</small></a>
+        </li>
+        <li class="{% if menu=='network' %}active{% endif %}">
+          <a href="{{ url_for('network_page') }}"><i class="fa fa-exchange"></i> <span>Tráfego de rede</span><small id="badge-network" class="label pull-right bg-red hidden">+1</small></a>
+        </li>
+        <li class="header">INFORMAÇÕES</li>
+        <li class="sidebar-info">
+          <div class="p-2">
+            <strong>Severidade:</strong> <span id="severity-info"></span><br>
+            <strong>Ataques:</strong> <span id="attack-info"></span><br>
+            <span class="text-red"><strong>Alerta:</strong> <span id="alert-info"></span></span><br>
+            <strong>Tráfego:</strong> <span id="nids-info"></span><br>
+            <strong>Placas:</strong> <span id="iface-info"></span>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </aside>
+  <div class="content-wrapper">
+    <section class="content">
+      {% block content %}{% endblock %}
+    </section>
   </div>
-</nav>
-<div id="content" class="flex-grow-1 p-4">
-{% block content %}{% endblock %}
 </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@2.4.18/dist/js/adminlte.min.js"></script>
 <script>
 const SEVERITY_COLORS = {{ severity_colors | tojson }};
 const LABEL_COLORS = {{ label_colors | default({}, true) | tojson }};
 const currentMenu = '{{ menu }}';
-async function fetchStats() {
-  const resp = await fetch('/api/stats');
-  if (!resp.ok) return;
-  const data = await resp.json();
-  const sev = document.getElementById('severity-info');
-  const nids = document.getElementById('nids-info');
-  const attacks = document.getElementById('attack-info');
-  const iface = document.getElementById('iface-info');
-  sev.innerHTML = Object.entries(data.severity).map(
-    ([k,v]) => `<span class="${SEVERITY_COLORS[k] || ''} me-2">${k}: ${v}</span>`
-  ).join(' ');
-  attacks.textContent = Object.entries(data.attacks).map(
-    ([k,v]) => `${k}: ${v}`
-  ).join(' ');
-  nids.innerHTML = Object.entries(data.network_labels || {}).map(
-    ([k,v]) => `<span class="${LABEL_COLORS[k.toLowerCase()] || ''} me-2">${k}: ${v}</span>`
-  ).join(' ');
-  iface.textContent = `Ativas: ${data.interfaces.active.join(', ')} | Atividade: ${data.interfaces.activity.join(', ')}`;
+async function fetchStats(){
+  const resp=await fetch('/api/stats'); if(!resp.ok) return;
+  const data=await resp.json();
+  $('#severity-info').html(Object.entries(data.severity).map(([k,v])=>`<span class="${SEVERITY_COLORS[k]||''} margin-r-5">${k}: ${v}</span>`).join(' '));
+  $('#attack-info').text(Object.entries(data.attacks).map(([k,v])=>`${k}: ${v}`).join(' '));
+  $('#nids-info').html(Object.entries(data.network_labels||{}).map(([k,v])=>`<span class="${LABEL_COLORS[k.toLowerCase()]||''} margin-r-5">${k}:${v}</span>`).join(' '));
+  $('#iface-info').text(`Ativas: ${data.interfaces.active.join(', ')} | Atividade: ${data.interfaces.activity.join(', ')}`);
 }
-
-async function fetchAlerts() {
-  const resp = await fetch('/api/alerts');
-  if (!resp.ok) return;
-  const data = await resp.json();
-  const bar = document.getElementById('alert-info');
-  if (!data.alerts.length) {
-    bar.textContent = '';
-    return;
-  }
-  const last = data.alerts[0];
-  const src = last.src || 'desconhecido';
-  const dst = last.dst || 'desconhecido';
-  const link = last.id ? `/logs?search=${encodeURIComponent(src)}` : '#';
-  bar.innerHTML = `<a href="${link}" class="text-danger text-decoration-none">${last.attack || 'ataque'}: ${src} -> ${dst}</a>`;
+async function fetchAlerts(){
+  const resp=await fetch('/api/alerts'); if(!resp.ok) return;
+  const data=await resp.json(); const bar=$('#alert-info');
+  if(!data.alerts.length){ bar.text(''); return; }
+  const last=data.alerts[0]; const src=last.src||'desconhecido'; const dst=last.dst||'desconhecido';
+  const link=last.id?'/logs?search='+encodeURIComponent(src):'#';
+  bar.html('<a href="'+link+'" class="text-red">'+(last.attack||'ataque')+': '+src+' -> '+dst+'</a>');
 }
-fetchStats();
-fetchAlerts();
-setInterval(fetchStats, 5000);
-setInterval(fetchAlerts, 5000);
-const COUNT_KEY = 'counts';
-let lastCounts = JSON.parse(localStorage.getItem(COUNT_KEY) || '{}');
-let countsReady = Object.keys(lastCounts).length > 0;
-async function fetchCounts() {
-  const resp = await fetch('/api/counts');
-  if (!resp.ok) return;
-  const data = await resp.json();
-  if (!countsReady) {
-    lastCounts = data;
-    countsReady = true;
-    localStorage.setItem(COUNT_KEY, JSON.stringify(lastCounts));
-    return;
+fetchStats(); fetchAlerts();
+setInterval(fetchStats,5000); setInterval(fetchAlerts,5000);
+const COUNT_KEY='counts';
+let lastCounts=JSON.parse(localStorage.getItem(COUNT_KEY)||'{}');
+let countsReady=Object.keys(lastCounts).length>0;
+async function fetchCounts(){
+  const resp=await fetch('/api/counts'); if(!resp.ok) return;
+  const data=await resp.json();
+  if(!countsReady){ lastCounts=data; countsReady=true; localStorage.setItem(COUNT_KEY,JSON.stringify(lastCounts)); return; }
+  for(const key of ['logs','analyzed','network']){
+    const diff=data[key]-(lastCounts[key]||0);
+    const badge=$('#badge-'+key);
+    if(diff>0 && currentMenu!==key){ badge.text('+'+diff).removeClass('hidden'); }
+    else if(currentMenu===key){ lastCounts[key]=data[key]; badge.addClass('hidden'); }
   }
-  for (const key of ['logs','analyzed','network']) {
-    const diff = data[key] - (lastCounts[key] || 0);
-    const badge = document.getElementById('badge-' + key);
-    if (diff > 0 && currentMenu !== key) {
-      badge.textContent = '+' + diff;
-      badge.classList.remove('d-none');
-    } else if (currentMenu === key) {
-      lastCounts[key] = data[key];
-      badge.classList.add('d-none');
-    }
-  }
-  localStorage.setItem(COUNT_KEY, JSON.stringify(lastCounts));
+  localStorage.setItem(COUNT_KEY,JSON.stringify(lastCounts));
 }
-fetchCounts();
-setInterval(fetchCounts, 5000);
-const THEME_KEY = 'theme';
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-bs-theme', theme);
-  const nav = document.getElementById('navbar');
-  const body = document.body;
-  const icon = document.getElementById('theme-icon');
-  if (theme === 'dark') {
-    nav.classList.add('navbar-dark','bg-dark');
-    nav.classList.remove('navbar-light','bg-light');
-    body.classList.add('bg-dark','text-light');
-    body.classList.remove('bg-light','text-dark');
-    icon.className = 'bi bi-moon-fill';
-  } else {
-    nav.classList.add('navbar-light','bg-light');
-    nav.classList.remove('navbar-dark','bg-dark');
-    body.classList.add('bg-light','text-dark');
-    body.classList.remove('bg-dark','text-light');
-    icon.className = 'bi bi-sun-fill';
-  }
+fetchCounts(); setInterval(fetchCounts,5000);
+const THEME_KEY='theme';
+function applyTheme(theme){
+  const body=document.getElementById('theme-body');
+  body.classList.remove('skin-blue','skin-black');
+  body.classList.add(theme==='dark'?'skin-black':'skin-blue');
+  document.getElementById('theme-icon').className=theme==='dark'?'fa fa-moon-o':'fa fa-sun-o';
 }
-const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+const savedTheme=localStorage.getItem(THEME_KEY)||'dark';
 applyTheme(savedTheme);
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  const current = document.documentElement.getAttribute('data-bs-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  localStorage.setItem(THEME_KEY, next);
+$('#theme-toggle').on('click',function(e){
+  e.preventDefault();
+  const current=document.getElementById('theme-body').classList.contains('skin-black')?'dark':'light';
+  const next=current==='dark'?'light':'dark';
+  localStorage.setItem(THEME_KEY,next);
   applyTheme(next);
 });
 </script>

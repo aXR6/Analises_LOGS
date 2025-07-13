@@ -70,9 +70,20 @@ def logs_page():
     page = int(request.args.get("page", 1))
     severity = request.args.get("severity")
     program = request.args.get("program")
+    host = request.args.get("host")
+    start = request.args.get("start")
+    end = request.args.get("end")
     db = LogDB()
     logs = []
-    for row in db.fetch_logs(limit=100, page=page, severity=severity, program=program):
+    for row in db.fetch_logs(
+        limit=100,
+        page=page,
+        severity=severity,
+        program=program,
+        host=host,
+        start=start,
+        end=end,
+    ):
         attack = classify_attack(row[5])
         logs.append(list(row) + [attack])
     db.close()
@@ -83,6 +94,9 @@ def logs_page():
         page=page,
         severity=severity,
         program=program,
+        host=host,
+        start=start,
+        end=end,
         menu="logs",
     )
 
@@ -100,6 +114,8 @@ def network_page():
     source = request.args.get("source")
     label = request.args.get("label")
     search = request.args.get("search")
+    start = request.args.get("start")
+    end = request.args.get("end")
     db = LogDB()
     sources = list(db.list_network_sources())
     db.close()
@@ -112,6 +128,8 @@ def network_page():
         source=source,
         label=label,
         search=search,
+        start=start,
+        end=end,
         menu="network",
     )
 
@@ -143,6 +161,8 @@ def api_network():
     source = request.args.get("source")
     label = request.args.get("label")
     search = request.args.get("search")
+    start = request.args.get("start")
+    end = request.args.get("end")
     db = LogDB()
     events = list(
         db.fetch_network_events(
@@ -151,6 +171,8 @@ def api_network():
             source=source,
             label=label,
             search=search,
+            start=start,
+            end=end,
         )
     )
     db.close()
@@ -165,6 +187,8 @@ def api_logs():
     host = request.args.get("host")
     program = request.args.get("program")
     search = request.args.get("search")
+    start = request.args.get("start")
+    end = request.args.get("end")
     db = LogDB()
     logs = []
     for row in db.fetch_logs(
@@ -174,6 +198,8 @@ def api_logs():
         host=host,
         program=program,
         search=search,
+        start=start,
+        end=end,
     ):
         attack = classify_attack(row[5])
         logs.append(list(row) + [attack])
