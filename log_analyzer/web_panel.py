@@ -63,7 +63,12 @@ def get_network_info() -> tuple[list[str], list[str]]:
 
 @app.route("/")
 def index():
-    return redirect(url_for("logs_page"))
+    return redirect(url_for("dashboard_page"))
+
+
+@app.route("/dashboard")
+def dashboard_page():
+    return render_template("dashboard.html", menu="dashboard")
 
 
 @app.route("/logs")

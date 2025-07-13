@@ -2,6 +2,20 @@
 body {
   font-family: Arial, sans-serif;
 }
+.light-navbar {
+  background-color: #f9fafc;
+  color: #333;
+}
+.light-navbar a {
+  color: #333;
+}
+.dark-navbar {
+  background-color: #222d32;
+  color: #c2c7d0;
+}
+.dark-navbar a {
+  color: #c2c7d0;
+}
 .list-group-item {
   border-radius: 0.25rem;
   margin-bottom: 0.5rem;
