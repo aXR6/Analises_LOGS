@@ -81,7 +81,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@2.4.18/dist/js/adminlte.min.js"></script>
 <script>
-const SEVERITY_COLORS = {{ severity_colors | tojson }};
+const SEVERITY_COLORS = {{ severity_colors | default({}, true) | tojson }};
 const LABEL_COLORS = {{ label_colors | default({}, true) | tojson }};
 const currentMenu = '{{ menu }}';
 async function fetchStats(){
