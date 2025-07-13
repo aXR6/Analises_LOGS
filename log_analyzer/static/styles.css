@@ -30,6 +30,26 @@ body {
   padding: 10px 15px;
 }
 
+.sidebar-info .info-section {
+  margin-bottom: 8px;
+}
+
+.sidebar-info .info-section-title {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.sidebar-info .alert-section {
+  color: #dd4b39;
+}
+
+.sidebar-info .label {
+  display: inline-block;
+  margin-right: 4px;
+  margin-bottom: 2px;
+}
+
 body.dark-mode {
   background-color: #1e282c;
   color: #c2c7d0;
