@@ -24,6 +24,28 @@
       </a>
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
+          <li class="navbar-info">
+            <span class="info-section">
+              <span class="info-section-title">Severidade</span>
+              <span id="severity-info"></span>
+            </span>
+            <span class="info-section">
+              <span class="info-section-title">Ataques</span>
+              <span id="attack-info"></span>
+            </span>
+            <span class="info-section alert-section">
+              <span class="info-section-title">Alerta</span>
+              <span id="alert-info"></span>
+            </span>
+            <span class="info-section">
+              <span class="info-section-title">Tráfego</span>
+              <span id="nids-info"></span>
+            </span>
+            <span class="info-section">
+              <span class="info-section-title">Placas</span>
+              <span id="iface-info"></span>
+            </span>
+          </li>
           <li><a href="#" id="theme-toggle"><i id="theme-icon" class="fa fa-moon-o"></i></a></li>
         </ul>
       </div>
@@ -44,29 +66,6 @@
         </li>
         <li class="{% if menu=='network' %}active{% endif %}">
           <a href="{{ url_for('network_page') }}"><i class="fa fa-exchange"></i> <span>Tráfego de rede</span><small id="badge-network" class="label pull-right bg-red hidden">+1</small></a>
-        </li>
-        <li class="header">INFORMAÇÕES</li>
-        <li class="sidebar-info">
-          <div class="info-section">
-            <span class="info-section-title">Severidade</span>
-            <div id="severity-info"></div>
-          </div>
-          <div class="info-section">
-            <span class="info-section-title">Ataques</span>
-            <div id="attack-info"></div>
-          </div>
-          <div class="info-section alert-section">
-            <span class="info-section-title">Alerta</span>
-            <div id="alert-info"></div>
-          </div>
-          <div class="info-section">
-            <span class="info-section-title">Tráfego</span>
-            <div id="nids-info"></div>
-          </div>
-          <div class="info-section">
-            <span class="info-section-title">Placas</span>
-            <div id="iface-info"></div>
-          </div>
         </li>
       </ul>
     </section>
