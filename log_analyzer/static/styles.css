@@ -40,3 +40,42 @@ body.dark-mode .content-wrapper {
 body.dark-mode .sidebar {
   background-color: #222d32;
 }
+.form-inline .form-control,
+.form-inline .btn {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+@media (max-width: 767px) {
+  .form-inline .form-control,
+  .form-inline .btn {
+    width: 100%;
+  }
+}
+
+body.dark-mode a {
+  color: #3c8dbc;
+}
+body.dark-mode a:hover {
+  color: #72afd2;
+}
+body.dark-mode .table-striped>tbody>tr:nth-of-type(odd) {
+  background-color: #2b3c45;
+}
+body.dark-mode .table-striped>tbody>tr:nth-of-type(even) {
+  background-color: #25333a;
+}
+body.dark-mode .table>thead>tr>th {
+  background-color: #1e282c;
+  color: #c2c7d0;
+}
+body.dark-mode .btn-default {
+  background-color: #3c444c;
+  border-color: #555;
+  color: #fff;
+}
+body.dark-mode input.form-control,
+body.dark-mode select.form-control {
+  background-color: #3c444c;
+  border-color: #555;
+  color: #fff;
+}
