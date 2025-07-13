@@ -100,7 +100,14 @@ async function analyzeNet(id) {
   const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
   modal.show();
 }
-fetchNetwork();
-setInterval(fetchNetwork, 5000);
+let currentNet = 0;
+fetchNetwork().then(()=>{currentNet=lastCounts.network||0;});
+document.addEventListener('counts-update',function(e){
+  const counts=e.detail;
+  if(counts.network>currentNet){
+    fetchNetwork();
+    currentNet=counts.network;
+  }
+});
 </script>
 {% endblock %}

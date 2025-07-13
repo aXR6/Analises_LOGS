@@ -83,30 +83,34 @@
 const SEVERITY_COLORS = {{ severity_colors | default({}, true) | tojson }};
 const LABEL_COLORS = {{ label_colors | default({}, true) | tojson }};
 const currentMenu = '{{ menu }}';
-async function fetchStats(){
-  const resp=await fetch('/api/stats'); if(!resp.ok) return;
-  const data=await resp.json();
+function updateStats(data){
   $('#severity-info').html(Object.entries(data.severity).map(([k,v])=>`<span class="${SEVERITY_COLORS[k]||'label label-default'} margin-r-5">${k}: ${v}</span>`).join(' '));
   $('#attack-info').text(Object.entries(data.attacks).map(([k,v])=>`${k}: ${v}`).join(' '));
   $('#nids-info').html(Object.entries(data.network_labels||{}).map(([k,v])=>`<span class="${LABEL_COLORS[k.toLowerCase()]||'label label-default'} margin-r-5">${k}:${v}</span>`).join(' '));
   $('#iface-info').text(`Ativas: ${data.interfaces.active.join(', ')} | Atividade: ${data.interfaces.activity.join(', ')}`);
 }
+async function fetchStats(){
+  const resp=await fetch('/api/stats'); if(!resp.ok) return;
+  const data=await resp.json();
+  updateStats(data);
+}
+function updateAlert(alert){
+  const bar=$('#alert-info');
+  if(!alert){ bar.text(''); return; }
+  const src=alert.src||'desconhecido'; const dst=alert.dst||'desconhecido';
+  const link=alert.id?'/logs?search='+encodeURIComponent(src):'#';
+  bar.html('<a href="'+link+'" class="text-red">'+(alert.attack||'ataque')+': '+src+' -> '+dst+'</a>');
+}
 async function fetchAlerts(){
   const resp=await fetch('/api/alerts'); if(!resp.ok) return;
-  const data=await resp.json(); const bar=$('#alert-info');
-  if(!data.alerts.length){ bar.text(''); return; }
-  const last=data.alerts[0]; const src=last.src||'desconhecido'; const dst=last.dst||'desconhecido';
-  const link=last.id?'/logs?search='+encodeURIComponent(src):'#';
-  bar.html('<a href="'+link+'" class="text-red">'+(last.attack||'ataque')+': '+src+' -> '+dst+'</a>');
+  const data=await resp.json();
+  updateAlert(data.alerts[0]);
 }
 fetchStats(); fetchAlerts();
-setInterval(fetchStats,5000); setInterval(fetchAlerts,5000);
 const COUNT_KEY='counts';
 let lastCounts=JSON.parse(localStorage.getItem(COUNT_KEY)||'{}');
 let countsReady=Object.keys(lastCounts).length>0;
-async function fetchCounts(){
-  const resp=await fetch('/api/counts'); if(!resp.ok) return;
-  const data=await resp.json();
+function updateCounts(data){
   if(!countsReady){ lastCounts=data; countsReady=true; localStorage.setItem(COUNT_KEY,JSON.stringify(lastCounts)); return; }
   for(const key of ['logs','analyzed','network']){
     const diff=data[key]-(lastCounts[key]||0);
@@ -116,7 +120,12 @@ async function fetchCounts(){
   }
   localStorage.setItem(COUNT_KEY,JSON.stringify(lastCounts));
 }
-fetchCounts(); setInterval(fetchCounts,5000);
+async function fetchCounts(){
+  const resp=await fetch('/api/counts'); if(!resp.ok) return;
+  const data=await resp.json();
+  updateCounts(data);
+}
+fetchCounts();
 const THEME_KEY='theme';
 function applyTheme(theme){
   const body=document.getElementById('theme-body');
@@ -144,6 +153,19 @@ $('#theme-toggle').on('click',function(e){
   localStorage.setItem(THEME_KEY,next);
   applyTheme(next);
 });
+if(window.EventSource){
+  const es=new EventSource('/api/stream');
+  es.onmessage=function(e){
+    try{
+      const data=JSON.parse(e.data);
+      if(data.stats) updateStats(data.stats);
+      if(data.alert) updateAlert(data.alert);
+      if(data.counts) updateCounts(data.counts);
+    }catch(err){console.error(err);}
+  };
+}else{
+  setInterval(fetchStats,5000); setInterval(fetchAlerts,5000); setInterval(fetchCounts,5000);
+}
 </script>
 </body>
 </html>
